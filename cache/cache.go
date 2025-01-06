@@ -50,7 +50,7 @@ func Cache(name ...string) some.Some[*cache.Cache[any]] {
 		n = name[0]
 		if db, ok := caches[n]; ok {
 			c := cache.New[any](db)
-			return some.Of(&c)
+			return some.Of(c)
 		}
 	}
 
@@ -60,7 +60,7 @@ func Cache(name ...string) some.Some[*cache.Cache[any]] {
 
 	if db, ok := caches["default"]; ok {
 		c := cache.New[any](db)
-		return some.Of(&c)
+		return some.Of(c)
 	}
 
 	return some.Empty[*cache.Cache[any]]()
