@@ -99,6 +99,7 @@ var policy = gowok.Singleton(func() *enforcer {
 })
 
 func Configure(model string, opts ...Option) func(*gowok.Project) {
+	opts = append(opts, withAdapter())
 	return func(project *gowok.Project) {
 		p := &enforcer{}
 		switch model {

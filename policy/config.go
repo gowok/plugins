@@ -1,17 +1,18 @@
 package policy
 
 import (
+	"database/sql"
+
 	sqladapter "github.com/Blank-Xu/sql-adapter"
 	redisadapter "github.com/casbin/redis-adapter/v3"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/exception"
 	"github.com/gowok/gowok/must"
 	"github.com/gowok/plugins/cache"
 )
 
 type Option func(*enforcer)
 
-func WithAdapter() Option {
+func withAdapter() Option {
 	return func(p *enforcer) {
 		var a any
 		func() {
@@ -19,9 +20,13 @@ func WithAdapter() Option {
 			if !ok {
 				return
 			}
-			db := gowok.Get().SQL("policy").OrPanic(exception.NoDatabaseFound)
-			a = must.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
+			gowok.Get().SQL("policy").IfPresent(func(db *sql.DB) {
+				p.adapter = must.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
+			})
 		}()
+		if p.adapter != nil {
+			return
+		}
 
 		func() {
 			confs, err := cache.ConfigFromProject(gowok.Get())
@@ -34,11 +39,17 @@ func WithAdapter() Option {
 				return
 			}
 
-			a = must.Must(redisadapter.NewAdapter("tcp", conf.DSN))
-		}()
+			if !conf.Enabled {
+				return
+			}
 
+			p.adapter = must.Must(redisadapter.NewAdapter("tcp", conf.DSN))
+		}()
 		if a != nil {
-			p.adapter = a
+			return
 		}
+
+		// add more adapters here!
+
 	}
 }
