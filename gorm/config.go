@@ -12,6 +12,6 @@ type Configs map[string]Config
 
 func ConfigFromMap(configMap map[string]any) Configs {
 	c := make(Configs)
-	maps.MapToStruct(configMap, &c)
+	_ = maps.MapToStruct(configMap, &c)
 	return c
 }
