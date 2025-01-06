@@ -17,17 +17,11 @@ import (
 var caches = map[string]store.StoreInterface{}
 
 func Configure(project *gowok.Project) {
-	configAny, ok := project.ConfigMap["cache"]
-	if !ok {
-		slog.Warn("no configuration", "plugin", "cache")
+	config, err := ConfigFromProject(project)
+	if err != nil {
+		slog.Warn(err.Error(), "plugin", "cache")
 		return
 	}
-	configMap, ok := configAny.(map[string]any)
-	if !ok {
-		slog.Warn("no configuration", "plugin", "cache")
-		return
-	}
-	config := ConfigFromMap(configMap)
 
 	for name, dbC := range config {
 		if !dbC.Enabled {
