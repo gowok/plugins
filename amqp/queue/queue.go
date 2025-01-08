@@ -1,6 +1,10 @@
 package amqp
 
-import amqp "github.com/rabbitmq/amqp091-go"
+import (
+	gowok_amqp "github.com/gowok/plugins/amqp"
+	"github.com/gowok/plugins/amqp/channel"
+	amqp "github.com/rabbitmq/amqp091-go"
+)
 
 type queue struct {
 	Name       string
@@ -8,7 +12,7 @@ type queue struct {
 	AutoDelete bool
 	Exclusive  bool
 	NoWait     bool
-	Arguments  Table
+	Arguments  gowok_amqp.Table
 	Channel    *amqp.Channel
 }
 
@@ -19,7 +23,7 @@ func Queue(name string, opts ...func(*queue)) (amqp.Queue, error) {
 	}
 
 	if q.Channel == nil {
-		ch, err := Channel()
+		ch, err := channel.Channel()
 		if err != nil {
 			return amqp.Queue{}, err
 		}
@@ -28,12 +32,12 @@ func Queue(name string, opts ...func(*queue)) (amqp.Queue, error) {
 	}
 
 	qq, err := q.Channel.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		q.Name,
+		q.Durable,
+		q.AutoDelete,
+		q.Exclusive,
+		q.NoWait,
+		amqp.Table(q.Arguments),
 	)
 	if err != nil {
 		return amqp.Queue{}, err
@@ -67,7 +71,7 @@ func WithNoWait(value bool) func(*queue) {
 		q.NoWait = value
 	}
 }
-func WithArguments(value Table) func(*queue) {
+func WithArguments(value gowok_amqp.Table) func(*queue) {
 	return func(q *queue) {
 		q.Arguments = value
 	}

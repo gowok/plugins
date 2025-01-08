@@ -45,25 +45,6 @@ func Configure(project *gowok.Project) {
 	connection(c)
 }
 
-func Channel() (*amqp.Channel, error) {
-	ch, err := Connection().Channel()
-	if err != nil {
-		return nil, err
-	}
-
-	return ch, nil
-}
-
-func ChannelDo(callback func(*amqp.Channel) error) error {
-	ch, err := Connection().Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	return callback(ch)
-}
-
 type Message struct {
 	Headers Table
 	Tag     uint64
