@@ -12,7 +12,7 @@ type queue struct {
 	AutoDelete bool
 	Exclusive  bool
 	NoWait     bool
-	Arguments  gowok_amqp.Table
+	Args       gowok_amqp.Table
 	Channel    *amqp.Channel
 }
 
@@ -37,7 +37,7 @@ func Queue(name string, opts ...func(*queue)) (amqp.Queue, error) {
 		q.AutoDelete,
 		q.Exclusive,
 		q.NoWait,
-		amqp.Table(q.Arguments),
+		amqp.Table(q.Args),
 	)
 	if err != nil {
 		return amqp.Queue{}, err
@@ -71,8 +71,8 @@ func WithNoWait(value bool) func(*queue) {
 		q.NoWait = value
 	}
 }
-func WithArguments(value gowok_amqp.Table) func(*queue) {
+func WithArgs(value gowok_amqp.Table) func(*queue) {
 	return func(q *queue) {
-		q.Arguments = value
+		q.Args = value
 	}
 }
