@@ -63,3 +63,15 @@ func ChannelDo(callback func(*amqp.Channel) error) error {
 
 	return callback(ch)
 }
+
+type Message struct {
+	Headers Table
+	Tag     uint64
+	Message []byte
+}
+
+type Table map[string]any
+
+func (t Table) Validate() error {
+	return nil
+}
