@@ -7,26 +7,24 @@ import (
 	"github.com/gowok/gowok/maps"
 )
 
-var docs = gowok.Singleton(func() *httpDocs {
-	return newHttpDocs(httpDocs{})
-})
+var plugin = "openapi"
 
-func Configure(project *gowok.Project) {
-	confMap, ok := project.ConfigMap["openapi"]
+var docs = gowok.Singleton(func() *httpDocs {
+	hd := httpDocs{}
+	confMap, ok := gowok.Get().ConfigMap["openapi"]
 	if !ok {
-		slog.Warn("no configuration", "plugin", "openapi")
-		return
+		slog.Warn("no configuration", "plugin", plugin)
+		return newHttpDocs(hd)
 	}
 
-	hd := httpDocs{}
 	err := maps.MapToStruct(confMap, &hd)
 	if err != nil {
 		slog.Warn("openapi", "error", err)
-		return
+		return newHttpDocs(hd)
 	}
 
-	docs(newHttpDocs(hd))
-}
+	return newHttpDocs(hd)
+})
 
 func Docs() *httpDocs {
 	d := docs()

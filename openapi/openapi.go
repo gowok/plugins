@@ -55,7 +55,7 @@ func newHttpDocs(docs httpDocs) *httpDocs {
 			},
 			SecurityDefinitions: make(map[string]*spec.SecurityScheme),
 			Paths: &spec.Paths{
-				Paths: map[string]spec.PathItem{},
+				Paths: make(map[string]spec.PathItem),
 			},
 			Definitions: spec.Definitions{},
 			Tags:        make([]spec.Tag, len(docs.Tags)),
