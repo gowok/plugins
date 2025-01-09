@@ -1,4 +1,4 @@
-package amqp
+package queue
 
 import (
 	gowok_amqp "github.com/gowok/plugins/amqp"

@@ -5,35 +5,37 @@ import (
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/maps"
+	"github.com/gowok/gowok/some"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var plugin = "rabbitmq"
+var plugin = "amqp"
 
 var connection = gowok.Singleton(func() *amqp.Connection {
 	return nil
 })
 
-func Connection() *amqp.Connection {
-	return *connection()
+func Connection() some.Some[*amqp.Connection] {
+	c := connection()
+	if c == nil {
+		return some.Empty[*amqp.Connection]()
+	}
+	if *c == nil {
+		return some.Empty[*amqp.Connection]()
+	}
+
+	return some.Of(*c)
 }
 
 func Configure(project *gowok.Project) {
-	configAny, ok := project.ConfigMap["rabbitmq"]
-	if !ok {
-		slog.Warn("no configuration", "plugin", plugin)
-		return
-	}
-	configMap, ok := configAny.(map[string]any)
-	if !ok {
-		slog.Warn("no configuration", "plugin", plugin)
-		return
-	}
 	var config Config
-	err := maps.MapToStruct(configMap, &config)
+	err := maps.MapToStruct(maps.Get(project.ConfigMap, "amqp", map[string]any{}), &config)
 	if err != nil {
 		slog.Warn("failed to map configuration", "plugin", plugin, "error", err)
+		return
+	}
+	if !config.Enabled {
 		return
 	}
 

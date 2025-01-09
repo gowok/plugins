@@ -6,7 +6,8 @@ import (
 )
 
 func Channel() (*amqp.Channel, error) {
-	ch, err := gowok_amqp.Connection().Channel()
+	c := gowok_amqp.Connection().OrPanic()
+	ch, err := c.Channel()
 	if err != nil {
 		return nil, err
 	}
@@ -15,7 +16,7 @@ func Channel() (*amqp.Channel, error) {
 }
 
 func ChannelDo(callback func(*amqp.Channel) error) error {
-	ch, err := gowok_amqp.Connection().Channel()
+	ch, err := gowok_amqp.Connection().OrPanic().Channel()
 	if err != nil {
 		return err
 	}
