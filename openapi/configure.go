@@ -5,11 +5,12 @@ import (
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/maps"
+	"github.com/gowok/gowok/singleton"
 )
 
 var plugin = "openapi"
 
-var docs = gowok.Singleton(func() *httpDocs {
+var docs = singleton.New(func() *httpDocs {
 	hd := httpDocs{}
 	confMap, ok := gowok.Get().ConfigMap["openapi"]
 	if !ok {
