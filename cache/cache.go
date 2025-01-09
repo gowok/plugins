@@ -14,12 +14,17 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+var plugin = "cache"
 var caches = map[string]store.StoreInterface{}
+
+type C[T any] struct {
+	*cache.Cache[T]
+}
 
 func Configure(project *gowok.Project) {
 	config, err := ConfigFromProject(project)
 	if err != nil {
-		slog.Warn(err.Error(), "plugin", "cache")
+		slog.Warn(err.Error(), "plugin", plugin)
 		return
 	}
 
@@ -28,29 +33,33 @@ func Configure(project *gowok.Project) {
 			continue
 		}
 
-		var client store.StoreInterface
 		if dbC.Driver == "memory" {
 			clientOpt := must.Must(ristretto.NewCache(&ristretto.Config{
 				NumCounters: 1e7,
 				MaxCost:     1 << 30,
 				BufferItems: 64,
 			}))
-			client = store_memory.NewRistretto(clientOpt, store.WithSynchronousSet())
-		} else if dbC.Driver == "redis" {
-			clientOpt := must.Must(redis.ParseURL(dbC.DSN))
-			client = store_redis.NewRedis(redis.NewClient(clientOpt))
+			caches[name] = store_memory.NewRistretto(clientOpt, store.WithSynchronousSet())
+			return
 		}
-		caches[name] = client
+
+		if dbC.Driver == "redis" {
+			clientOpt := must.Must(redis.ParseURL(dbC.DSN))
+			caches[name] = store_redis.NewRedis(redis.NewClient(clientOpt))
+			return
+		}
+
+		slog.Warn("unknown", "driver", dbC.Driver, "plugin", plugin)
 	}
 }
 
-func Cache(name ...string) some.Some[*cache.Cache[any]] {
+func Cache(name ...string) some.Some[*C[any]] {
 	n := ""
 	if len(name) > 0 {
 		n = name[0]
 		if db, ok := caches[n]; ok {
 			c := cache.New[any](db)
-			return some.Of(c)
+			return some.Of(&C[any]{c})
 		}
 	}
 
@@ -60,8 +69,8 @@ func Cache(name ...string) some.Some[*cache.Cache[any]] {
 
 	if db, ok := caches["default"]; ok {
 		c := cache.New[any](db)
-		return some.Of(c)
+		return some.Of(&C[any]{c})
 	}
 
-	return some.Empty[*cache.Cache[any]]()
+	return some.Empty[*C[any]]()
 }
