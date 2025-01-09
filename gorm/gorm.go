@@ -6,23 +6,26 @@ import (
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/some"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Opener func(string) gorm.Dialector
 type dbMap map[string]*gorm.DB
 
+var plugin = "gorm"
 var dbs = make(dbMap)
 
 func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Project) {
+	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
 	return func(project *gowok.Project) {
 		configAny, ok := project.ConfigMap["gorm"]
 		if !ok {
-			slog.Warn("no configuration", "plugin", "GORM")
+			slog.Warn("no configuration", "plugin", plugin)
 			return
 		}
 		configMap, ok := configAny.(map[string]any)
 		if !ok {
-			slog.Warn("no configuration", "plugin", "GORM")
+			slog.Warn("no configuration", "plugin", plugin)
 			return
 		}
 		config := ConfigFromMap(configMap)
@@ -34,13 +37,13 @@ func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Proje
 
 			opener, ok := drivers[dbC.Driver]
 			if !ok {
-				slog.Warn("unknown GORM", "driver", dbC.Driver, "name", name)
+				slog.Warn("unknown GORM", "driver", dbC.Driver, "name", name, "plugin", plugin)
 				continue
 			}
 
 			db, err := gorm.Open(opener(dbC.DSN), cfgs...)
 			if err != nil {
-				slog.Warn("failed to open GORM", "driver", dbC.Driver, "name", name)
+				slog.Warn("failed to open", "driver", dbC.Driver, "name", name, "plugin", plugin, "error", err)
 				continue
 			}
 
