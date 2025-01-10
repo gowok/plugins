@@ -14,13 +14,13 @@ import (
 type httpDocs struct {
 	swagger                           *spec.Swagger
 	Title, Version, Host, Description string
-	TermsOfService                    string  `yaml:"terms_of_service"`
-	BasePath                          string  `yaml:"base_path"`
-	Contact                           contact `yaml:"contact"`
-	License                           license `yaml:"license"`
+	TermsOfService                    string  `json:"terms_of_service"`
+	BasePath                          string  `json:"base_path"`
+	Contact                           contact `json:"contact"`
+	License                           license `json:"license"`
 	Schemes, Consumes, Produces       []string
 	Tags                              []spec.Tag
-	SecurityDefinitions               map[string]securityDefinition `yaml:"security_definitions"`
+	SecurityDefinitions               map[string]securityDefinition `json:"security_definitions"`
 }
 
 func newHttpDocs(docs httpDocs) *httpDocs {

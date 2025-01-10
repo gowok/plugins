@@ -12,6 +12,6 @@ type license struct {
 }
 
 type securityDefinition struct {
-	FieldName   string `yaml:"field_name"`
-	ValueSource string `yaml:"value_source"`
+	FieldName   string `json:"field_name"`
+	ValueSource string `json:"value_source"`
 }
