@@ -1,12 +1,13 @@
 package policy
 
 import (
-	"database/sql"
+	ssql "database/sql"
 
 	sqladapter "github.com/Blank-Xu/sql-adapter"
 	redisadapter "github.com/casbin/redis-adapter/v3"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/must"
+	"github.com/gowok/gowok/sql"
 	"github.com/gowok/plugins/cache"
 )
 
@@ -20,7 +21,7 @@ func withAdapter() Option {
 			if !ok {
 				return
 			}
-			gowok.Get().SQL("policy").IfPresent(func(db *sql.DB) {
+			sql.GetNoDefault("policy").IfPresent(func(db *ssql.DB) {
 				p.adapter = must.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
 			})
 		}()
