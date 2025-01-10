@@ -67,6 +67,7 @@ func newHttpDocs(docs httpDocs) *httpDocs {
 			SecuritySchemeProps: spec.SecuritySchemeProps{
 				Name: v.FieldName,
 				In:   v.ValueSource,
+				Type: v.Type,
 			},
 		}
 	}
