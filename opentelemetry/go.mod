@@ -1,4 +1,4 @@
-module github.com/born2ngopi/plugins/opentelemetry
+module github.com/gowok/plugins/opentelemetry
 
 go 1.23.4
 
