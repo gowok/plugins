@@ -9,7 +9,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	govalidator "github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
@@ -70,10 +69,6 @@ func (err ValidationError) MarshalJSON() ([]byte, error) {
 }
 
 var vv = singleton.New(func() *validator {
-	return &validator{}
-})
-
-func Configure(p *gowok.Project) {
 	validate := govalidator.New()
 	v := &validator{
 		validate: validate,
@@ -84,22 +79,32 @@ func Configure(p *gowok.Project) {
 	uni := ut.New(en, en)
 	trans, ok := uni.GetTranslator("en")
 	if !ok {
-		return
+		return nil
 	}
 
 	err := en_translations.RegisterDefaultTranslations(v.validate, trans)
 	if err != nil {
-		return
+		return nil
 	}
 	v.trans = trans
-	vv(v)
-}
+	return v
+})
 
 func SetTranslator(trans ut.Translator, localeFunc func(*govalidator.Validate, ut.Translator) error) {
 	v := *vv()
 	v.trans = trans
 	localeFunc(v.validate, trans)
 	vv(v)
+}
+
+func (v *validator) registerTranslationTag(tag, message string, override bool) error {
+	err := v.validate.RegisterTranslation(tag, v.trans, func(ut ut.Translator) error {
+		return ut.Add(tag, message, override)
+	}, func(ut ut.Translator, fe govalidator.FieldError) string {
+		t, _ := ut.T(tag, fe.Field())
+		return t
+	})
+	return err
 }
 
 func ValidateStruct(input any, trans map[string]string) ValidationError {
@@ -127,16 +132,6 @@ func ValidateStruct(input any, trans map[string]string) ValidationError {
 	})
 
 	return result
-}
-
-func (v *validator) registerTranslationTag(tag, message string, override bool) error {
-	err := v.validate.RegisterTranslation(tag, v.trans, func(ut ut.Translator) error {
-		return ut.Add(tag, message, override)
-	}, func(ut ut.Translator, fe govalidator.FieldError) string {
-		t, _ := ut.T(tag, fe.Field())
-		return t
-	})
-	return err
 }
 
 func ValidateJSON[T any](r *http.Request, schema T, trans map[string]string) (*T, *ValidationError) {

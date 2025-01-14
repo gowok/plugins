@@ -3,6 +3,7 @@ module github.com/gowok/plugins/validator
 go 1.23.4
 
 require (
+	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gowok/gowok v0.3.73
@@ -11,7 +12,6 @@ require (
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
