@@ -1,13 +1,18 @@
 package opentelemetry
 
 import (
+	"log"
 	"log/slog"
 
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/router"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	runtimemetrics "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
@@ -30,10 +35,6 @@ func Configure(project *gowok.Project) {
 
 	var opts []trace.TracerProviderOption
 
-	opts = append(opts, trace.WithResource(resource.NewWithAttributes(
-		"service.name",
-	)))
-
 	if config.LocalExporter {
 		// Inisialisasi console exporter
 		exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
@@ -46,9 +47,9 @@ func Configure(project *gowok.Project) {
 
 	}
 
-	if config.JaegerExporter {
+	if config.JaegerEnabled {
 		jaegerExporter, err := jaeger.New(
-			jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.Jaeger.Endpoint)), // Ganti dengan URL Jaeger Anda
+			jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.JaegerExporter.Endpoint)),
 		)
 		if err != nil {
 			slog.Error("failed to initialize jaeger exporter", "error", err)
@@ -59,9 +60,25 @@ func Configure(project *gowok.Project) {
 
 		opts = append(opts, trace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("service-name"),
-			attribute.String("environment", "env"),
+			semconv.ServiceNameKey.String(config.ServiceName),
+			// attribute.String("environment", "env"),
 		)))
+	}
+
+	if config.MatricEnabled {
+		if err := runtimemetrics.Start(); err != nil {
+			slog.Error("failed to start runtime metrics", "error", err)
+			return
+		}
+
+		exporter, err := prometheus.New()
+		if err != nil {
+			log.Fatal(err)
+		}
+		provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
+		otel.SetMeterProvider(provider)
+
+		router.Get(config.MatricExporter.Path, promhttp.Handler().ServeHTTP)
 	}
 
 	tracerProvider := trace.NewTracerProvider(
