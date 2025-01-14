@@ -1,7 +1,6 @@
 package opentelemetry
 
 import (
-	"log"
 	"log/slog"
 
 	"github.com/gowok/gowok"
@@ -31,8 +30,8 @@ func Configure(project *gowok.Project) {
 		slog.Warn("no configuration", "plugin", "mongo")
 		return
 	}
-	config := ConfigFromMap(configMap)
 
+	config := ConfigFromMap(configMap)
 	var opts []trace.TracerProviderOption
 
 	if config.LocalExporter {
@@ -47,7 +46,7 @@ func Configure(project *gowok.Project) {
 
 	}
 
-	if config.JaegerEnabled {
+	if config.JaegerExporter.Enabled {
 		jaegerExporter, err := jaeger.New(
 			jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(config.JaegerExporter.Endpoint)),
 		)
@@ -65,7 +64,7 @@ func Configure(project *gowok.Project) {
 		)))
 	}
 
-	if config.MatricEnabled {
+	if config.MetricExporter.Enabled {
 		if err := runtimemetrics.Start(); err != nil {
 			slog.Error("failed to start runtime metrics", "error", err)
 			return
@@ -73,12 +72,13 @@ func Configure(project *gowok.Project) {
 
 		exporter, err := prometheus.New()
 		if err != nil {
-			log.Fatal(err)
+			slog.Error("failed to initialize prometheus exporter", "error", err)
+			return
 		}
 		provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
 		otel.SetMeterProvider(provider)
 
-		router.Get(config.MatricExporter.Path, promhttp.Handler().ServeHTTP)
+		router.Get(config.MetricExporter.Path, promhttp.Handler().ServeHTTP)
 	}
 
 	tracerProvider := trace.NewTracerProvider(

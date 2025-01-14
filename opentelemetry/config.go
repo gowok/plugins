@@ -6,19 +6,18 @@ type Config struct {
 	Enabled        bool
 	ServiceName    string
 	LocalExporter  bool
-	JaegerEnabled  bool
 	JaegerExporter Jaeger
-	PromotheusUrl  string
-	MatricEnabled  bool
-	MatricExporter MetricExporter
+	MetricExporter MetricExporter
 }
 
 type Jaeger struct {
+	Enabled  bool
 	Endpoint string
 }
 
 type MetricExporter struct {
-	Path string
+	Enabled bool
+	Path    string
 }
 
 func ConfigFromMap(configMap map[string]any) Config {
