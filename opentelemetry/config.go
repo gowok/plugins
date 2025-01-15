@@ -1,7 +1,5 @@
 package opentelemetry
 
-import "github.com/gowok/gowok/maps"
-
 type Config struct {
 	Enabled        bool
 	ServiceName    string
@@ -18,10 +16,4 @@ type Jaeger struct {
 type MetricExporter struct {
 	Enabled bool
 	Path    string
-}
-
-func ConfigFromMap(configMap map[string]any) Config {
-	c := Config{}
-	_ = maps.MapToStruct(configMap, &c)
-	return c
 }
