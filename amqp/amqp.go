@@ -1,12 +1,17 @@
 package amqp
 
 import (
+	"fmt"
 	"log/slog"
 
+	"math/rand"
+
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/health"
 	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
+	"github.com/ngamux/ngamux"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -30,6 +35,8 @@ var connection = singleton.New(func() *amqp.Connection {
 		slog.Warn("failed to connect", "plugin", plugin, "error", err)
 		return nil
 	}
+
+	health.Add("amqp", healthFunc(c))
 
 	return c
 })
@@ -60,4 +67,62 @@ type Table map[string]any
 
 func (t Table) Validate() error {
 	return nil
+}
+
+func healthFunc(c *amqp.Connection) func() any {
+	return func() any {
+		status := ngamux.Map{"status": "DOWN"}
+		ch, err := c.Channel()
+		if err != nil {
+			return status
+		}
+		q, err := ch.QueueDeclare(
+			"",
+			false,
+			false,
+			true,
+			false,
+			nil,
+		)
+		if err != nil {
+			return status
+		}
+		defer func() {
+			ch.QueueDelete(q.Name, false, false, true)
+			ch.Close()
+		}()
+		body := fmt.Sprintf("%d", rand.Intn(100))
+		err = ch.Publish(
+			"",
+			q.Name,
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(body),
+			})
+		if err != nil {
+			return status
+		}
+		msgs, err := ch.Consume(
+			q.Name,
+			"",
+			true,
+			true,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			return status
+		}
+		for d := range msgs {
+			if string(d.Body) != body {
+				return status
+			}
+			break
+		}
+
+		return ngamux.Map{"status": "UP"}
+	}
 }
