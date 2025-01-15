@@ -2,9 +2,10 @@ module github.com/gowok/plugins/amqp
 
 go 1.23.4
 
-require github.com/gowok/gowok v0.3.75
+require github.com/gowok/gowok v0.3.76
 
 require (
+	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 )
@@ -13,7 +14,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/ngamux/middleware v0.0.8 // indirect
-	github.com/ngamux/ngamux v1.7.44 // indirect
+	github.com/ngamux/ngamux v1.7.44
 	github.com/rabbitmq/amqp091-go v1.10.0
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
