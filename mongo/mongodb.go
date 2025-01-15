@@ -5,27 +5,24 @@ import (
 	"log/slog"
 
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/some"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+var plugin = "mongo"
 
 type mongoDBMap map[string]*mongo.Client
 
 var mongos = make(mongoDBMap)
 
 func Configure(project *gowok.Project) {
-	configAny, ok := project.ConfigMap["mongo"]
-	if !ok {
+	var config Configs
+	err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "mongo"), &config)
+	if err != nil {
 		slog.Warn("no configuration", "plugin", "mongo")
-		return
 	}
-	configMap, ok := configAny.(map[string]any)
-	if !ok {
-		slog.Warn("no configuration", "plugin", "mongo")
-		return
-	}
-	config := ConfigFromMap(configMap)
 
 	mongos = make(mongoDBMap)
 	c := context.Background()
@@ -38,7 +35,7 @@ func Configure(project *gowok.Project) {
 		opts := options.Client().ApplyURI(dbC.DSN)
 		client, err := mongo.Connect(c, opts)
 		if err != nil {
-			slog.Warn("failed to open mongo", "name", name, "error", err)
+			slog.Warn("failed to open", "plugin", plugin, "name", name, "error", err)
 			return
 		}
 
@@ -57,7 +54,11 @@ func Client(name ...string) some.Some[*mongo.Client] {
 		return db
 	}
 
-	slog.Info("using default connection", "not_found", name)
+	if n == "default" {
+		return some.Empty[*mongo.Client]()
+	}
+
+	slog.Info("using default connection", "not_found", n)
 	db = ClientNoDefault("default")
 	if db.IsPresent() {
 		return db
