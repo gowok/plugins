@@ -5,6 +5,7 @@ import (
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/maps"
+	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -12,8 +13,25 @@ import (
 
 var plugin = "amqp"
 
-var connection = gowok.Singleton(func() *amqp.Connection {
-	return nil
+var connection = singleton.New(func() *amqp.Connection {
+	configMap := maps.Get(gowok.Get().ConfigMap, "amqp", map[string]any{})
+	var config Config
+	err := maps.ToStruct(configMap, &config)
+	if err != nil {
+		slog.Warn("failed to map configuration", "plugin", plugin, "error", err)
+		return nil
+	}
+	if !config.Enabled {
+		return nil
+	}
+
+	c, err := amqp.Dial(config.DSN)
+	if err != nil {
+		slog.Warn("failed to connect", "plugin", plugin, "error", err)
+		return nil
+	}
+
+	return c
 })
 
 func Connection() some.Some[*amqp.Connection] {
@@ -29,22 +47,7 @@ func Connection() some.Some[*amqp.Connection] {
 }
 
 func Configure(project *gowok.Project) {
-	var config Config
-	err := maps.MapToStruct(maps.Get(project.ConfigMap, "amqp", map[string]any{}), &config)
-	if err != nil {
-		slog.Warn("failed to map configuration", "plugin", plugin, "error", err)
-		return
-	}
-	if !config.Enabled {
-		return
-	}
-
-	c, err := amqp.Dial(config.DSN)
-	if err != nil {
-		slog.Warn("failed to connect", "plugin", plugin, "error", err)
-		return
-	}
-	connection(c)
+	_ = connection()
 }
 
 type Message struct {
