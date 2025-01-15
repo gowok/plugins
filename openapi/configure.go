@@ -12,15 +12,9 @@ var plugin = "openapi"
 
 var docs = singleton.New(func() *httpDocs {
 	hd := httpDocs{}
-	confMap, ok := gowok.Get().ConfigMap["openapi"]
-	if !ok {
-		slog.Warn("no configuration", "plugin", plugin)
-		return newHttpDocs(hd)
-	}
-
-	err := maps.MapToStruct(confMap, &hd)
+	err := maps.ToStruct(maps.Get[map[string]any](gowok.Get().ConfigMap, "openapi"), &hd)
 	if err != nil {
-		slog.Warn("openapi", "error", err)
+		slog.Warn("can not load configuration", "plugin", plugin, "error", err)
 		return newHttpDocs(hd)
 	}
 
