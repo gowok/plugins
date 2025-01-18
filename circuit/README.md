@@ -83,13 +83,27 @@ func GetUsers() (models.User, error) {
     req.Header.Set("Content-Type", "application/json")
     req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv(constants.USER_SERVICE_TOKEN)))
 
-    res, err := circuit.SendHttpRequest(req, http.DefaultClient)
+    // below is example how to use it
+    // use default client
+    res, err := circuit.SendHttpRequest(req)
     if err != nil {
         if errors.Is(err, circuit.ERR_CIRCUIT_OPEN) {
             // posible server down
             return models.User{}, fmt.Errorf("github is down")
         }
     }
+
+    // or with custom client
+    res, err := circuit.SendHttpRequest(req, &http.Client{
+		Timeout: 10 * time.Second,
+	})
+    if err != nil {
+        if errors.Is(err, circuit.ERR_CIRCUIT_OPEN) {
+            // posible server down
+            return models.User{}, fmt.Errorf("github is down")
+        }
+    }
+
 
     // do logic ...
 
