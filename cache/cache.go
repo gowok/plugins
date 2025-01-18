@@ -16,6 +16,7 @@ import (
 
 var plugin = "cache"
 var caches = map[string]store.StoreInterface{}
+var drivers = make(map[string]string)
 
 type C[T any] struct {
 	*cache.Cache[T]
@@ -40,12 +41,14 @@ func Configure(project *gowok.Project) {
 				BufferItems: 64,
 			}))
 			caches[name] = store_memory.NewRistretto(clientOpt, store.WithSynchronousSet())
+			drivers[name] = "memory"
 			return
 		}
 
 		if dbC.Driver == "redis" {
 			clientOpt := must.Must(redis.ParseURL(dbC.DSN))
 			caches[name] = store_redis.NewRedis(redis.NewClient(clientOpt))
+			drivers[name] = "redis"
 			return
 		}
 
@@ -53,13 +56,29 @@ func Configure(project *gowok.Project) {
 	}
 }
 
-func Cache(name ...string) some.Some[*C[any]] {
+func GetDriver(name ...string) (driver string, ok bool) {
+	n := ""
+	if len(name) > 0 {
+		n = name[0]
+		driver, ok = drivers[n]
+		return
+	}
+
+	if n != "" {
+		slog.Info("using default connection", "not_found", n)
+	}
+
+	driver, ok = drivers["default"]
+	return
+}
+
+func Cache[T any](name ...string) some.Some[*C[T]] {
 	n := ""
 	if len(name) > 0 {
 		n = name[0]
 		if db, ok := caches[n]; ok {
-			c := cache.New[any](db)
-			return some.Of(&C[any]{c})
+			c := cache.New[T](db)
+			return some.Of(&C[T]{c})
 		}
 	}
 
@@ -68,9 +87,9 @@ func Cache(name ...string) some.Some[*C[any]] {
 	}
 
 	if db, ok := caches["default"]; ok {
-		c := cache.New[any](db)
-		return some.Of(&C[any]{c})
+		c := cache.New[T](db)
+		return some.Of(&C[T]{c})
 	}
 
-	return some.Empty[*C[any]]()
+	return some.Empty[*C[T]]()
 }
