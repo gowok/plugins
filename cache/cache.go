@@ -16,7 +16,6 @@ import (
 
 var plugin = "cache"
 var caches = map[string]store.StoreInterface{}
-var drivers = make(map[string]string)
 
 type C[T any] struct {
 	*cache.Cache[T]
@@ -41,14 +40,12 @@ func Configure(project *gowok.Project) {
 				BufferItems: 64,
 			}))
 			caches[name] = store_memory.NewRistretto(clientOpt, store.WithSynchronousSet())
-			drivers[name] = "memory"
 			return
 		}
 
 		if dbC.Driver == "redis" {
 			clientOpt := must.Must(redis.ParseURL(dbC.DSN))
 			caches[name] = store_redis.NewRedis(redis.NewClient(clientOpt))
-			drivers[name] = "redis"
 			return
 		}
 
