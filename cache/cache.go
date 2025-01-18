@@ -56,22 +56,6 @@ func Configure(project *gowok.Project) {
 	}
 }
 
-func GetDriver(name ...string) (driver string, ok bool) {
-	n := ""
-	if len(name) > 0 {
-		n = name[0]
-		driver, ok = drivers[n]
-		return
-	}
-
-	if n != "" {
-		slog.Info("using default connection", "not_found", n)
-	}
-
-	driver, ok = drivers["default"]
-	return
-}
-
 func Cache[T any](name ...string) some.Some[*C[T]] {
 	n := ""
 	if len(name) > 0 {
