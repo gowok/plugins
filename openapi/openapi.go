@@ -1,14 +1,18 @@
 package openapi
 
 import (
+	"log/slog"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 
 	"github.com/go-openapi/jsonreference"
 	"github.com/go-openapi/spec"
+	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
+	"gopkg.in/yaml.v3"
 )
 
 type httpDocs struct {
@@ -78,6 +82,32 @@ func newHttpDocs(docs httpDocs) *httpDocs {
 	return &docs
 }
 
+func newHttpDocsFromYAMLFile(filePath string) *httpDocs {
+	hd := newHttpDocs(httpDocs{})
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		slog.Warn("can not load configuration", "plugin", plugin, "error", err)
+		return hd
+	}
+	defer file.Close()
+
+	mm := map[string]any{}
+	err = yaml.NewDecoder(file).Decode(&mm)
+	if err != nil {
+		return hd
+	}
+
+	swagger := spec.Swagger{}
+	err = maps.ToStruct(mm, &swagger)
+	if err != nil {
+		return hd
+	}
+
+	hd.swagger = &swagger
+	return hd
+}
+
 func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) func(ngamux.Route) {
 	operation := spec.NewOperation(description)
 	operation.Description = description
@@ -85,6 +115,9 @@ func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) fu
 	return func(route ngamux.Route) {
 		some.Of(callback).OrElse(func(*spec.Operation) {})(operation)
 
+		if docs.swagger.Paths == nil {
+			docs.swagger.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
+		}
 		if itemFound, ok := docs.swagger.Paths.Paths[route.Path]; ok {
 			item = itemFound.PathItemProps
 		}
