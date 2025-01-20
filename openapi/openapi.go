@@ -108,21 +108,26 @@ func newHttpDocsFromYAMLFile(filePath string) *httpDocs {
 	return hd
 }
 
-func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) func(ngamux.Route) {
+type entry interface {
+	Method() string
+	Path() string
+}
+
+func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) func(entry) {
 	operation := spec.NewOperation(description)
 	operation.Description = description
 	item := spec.PathItemProps{}
-	return func(route ngamux.Route) {
+	return func(route entry) {
 		some.Of(callback).OrElse(func(*spec.Operation) {})(operation)
 
 		if docs.swagger.Paths == nil {
 			docs.swagger.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
 		}
-		if itemFound, ok := docs.swagger.Paths.Paths[route.Path]; ok {
+		if itemFound, ok := docs.swagger.Paths.Paths[route.Path()]; ok {
 			item = itemFound.PathItemProps
 		}
 
-		switch route.Method {
+		switch route.Method() {
 		case http.MethodGet:
 			item.Get = operation
 		case http.MethodPost:
@@ -138,7 +143,7 @@ func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) fu
 		case http.MethodOptions:
 			item.Options = operation
 		}
-		docs.swagger.Paths.Paths[route.Path] = spec.PathItem{
+		docs.swagger.Paths.Paths[route.Path()] = spec.PathItem{
 			PathItemProps: item,
 		}
 	}
