@@ -53,13 +53,13 @@ func Configure(project *gowok.Project) {
 	}
 }
 
-func Cache(name ...string) some.Some[*C[any]] {
+func Cache[T any](name ...string) some.Some[*C[T]] {
 	n := ""
 	if len(name) > 0 {
 		n = name[0]
 		if db, ok := caches[n]; ok {
-			c := cache.New[any](db)
-			return some.Of(&C[any]{c})
+			c := cache.New[T](db)
+			return some.Of(&C[T]{c})
 		}
 	}
 
@@ -68,9 +68,9 @@ func Cache(name ...string) some.Some[*C[any]] {
 	}
 
 	if db, ok := caches["default"]; ok {
-		c := cache.New[any](db)
-		return some.Of(&C[any]{c})
+		c := cache.New[T](db)
+		return some.Of(&C[T]{c})
 	}
 
-	return some.Empty[*C[any]]()
+	return some.Empty[*C[T]]()
 }
