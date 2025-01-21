@@ -3,15 +3,15 @@ Each plugin is designed to work together with Gowok internal or other plugins.
 You can turn off some Gowok functions and activate any plugins to replace it functionality.
 
 Here some of available plugins:
-* [amqp](https://github.com/gowok/plugins/tree/master/amqp)
-* [cache](https://github.com/gowok/plugins/tree/master/cache)
-* [fiber](https://github.com/gowok/plugins/tree/master/fiber)
-* [gorm](https://github.com/gowok/plugins/tree/master/gorm)
-* [mongo](https://github.com/gowok/plugins/tree/master/mongo)
-* [openapi](https://github.com/gowok/plugins/tree/master/openapi)
-* [opentelemetry](https://github.com/gowok/plugins/tree/master/opentelemetry)
-* [policy](https://github.com/gowok/plugins/tree/master/policy)
-* [validator](https://github.com/gowok/plugins/tree/master/validator)
+* [amqp](https://github.com/gowok/plugins/tree/master/amqp) - Interact to AMQP protocol, usually used for utilize [RabbitMQ](https://www.rabbitmq.com).
+* [cache](https://github.com/gowok/plugins/tree/master/cache) - High level cache interface with multiple storage support.
+* [fiber](https://github.com/gowok/plugins/tree/master/fiber) - HTTP server library if you won't to use what Gowok has.
+* [gorm](https://github.com/gowok/plugins/tree/master/gorm) - Manage multiple connection of [GORM](https://gorm.io).
+* [mongo](https://github.com/gowok/plugins/tree/master/mongo) - Manage multiple connection of [MongoDB](https://www.mongodb.com)
+* [openapi](https://github.com/gowok/plugins/tree/master/openapi) - Serving API documentation with [OpenAPI](https://www.openapis.org) standard.
+* [opentelemetry](https://github.com/gowok/plugins/tree/master/opentelemetry) - Metrics and tracers telemetry exporter.
+* [policy](https://github.com/gowok/plugins/tree/master/policy) - Manage access rules to authorize user with all [Casbin](https://casbin.org) abilities.
+* [validator](https://github.com/gowok/plugins/tree/master/validator) - Utilities to make validation easier to use.
 
 ## Usage
 In general, a plugin has public function that called `Configure` as entry point.
