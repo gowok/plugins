@@ -53,20 +53,33 @@ func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Proje
 }
 
 func DB(name ...string) some.Some[*gorm.DB] {
+	n := "default"
+	if len(name) > 0 {
+		n = name[0]
+	}
+
+	if db := DBNoDefault(n); db.IsPresent() {
+		return db
+	}
+
+	if n == "default" {
+		return some.Empty[*gorm.DB]()
+	}
+
+	slog.Info("using default connection", "not_found", n)
+	if db := DBNoDefault("default"); db.IsPresent() {
+		return db
+	}
+	return some.Empty[*gorm.DB]()
+}
+
+func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 	n := ""
 	if len(name) > 0 {
 		n = name[0]
 		if db, ok := dbs[n]; ok {
 			return some.Of(db)
 		}
-	}
-
-	if n != "" {
-		slog.Info("using default connection", "not_found", n)
-	}
-
-	if db, ok := dbs["default"]; ok {
-		return some.Of(db)
 	}
 
 	return some.Empty[*gorm.DB]()
