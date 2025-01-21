@@ -49,8 +49,7 @@ func Client(name ...string) some.Some[*mongo.Client] {
 		n = name[0]
 	}
 
-	db := ClientNoDefault(n)
-	if db.IsPresent() {
+	if db := ClientNoDefault(n); db.IsPresent() {
 		return db
 	}
 
@@ -59,8 +58,7 @@ func Client(name ...string) some.Some[*mongo.Client] {
 	}
 
 	slog.Info("using default connection", "not_found", n)
-	db = ClientNoDefault("default")
-	if db.IsPresent() {
+	if db := ClientNoDefault("default"); db.IsPresent() {
 		return db
 	}
 
