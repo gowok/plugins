@@ -5,6 +5,7 @@ import (
 	"github.com/casbin/casbin/v2/model"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/must"
+	"github.com/gowok/gowok/singleton"
 )
 
 const (
@@ -94,7 +95,7 @@ func NewPolicyABAC(opts ...Option) (*enforcer, error) {
 	return NewPolicy(model, opts...)
 }
 
-var policy = gowok.Singleton(func() *enforcer {
+var policy = singleton.New(func() *enforcer {
 	return &enforcer{}
 })
 

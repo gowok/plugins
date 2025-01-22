@@ -14,7 +14,7 @@ type Option func(*enforcer)
 func withAdapter() Option {
 	return func(p *enforcer) {
 		if conf, ok := gowok.Get().Config.SQLs["policy"]; ok {
-			if db, ok := sql.GetNoDefault("policy").Get(); ok {
+			if db, ok := sql.DBNoDefault("policy").Get(); ok {
 				p.adapter = must.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
 				return
 			}
