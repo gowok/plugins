@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.6
-	github.com/gowok/gowok v0.3.76
+	github.com/gowok/gowok v0.3.78
 )
 
 require (
@@ -18,7 +18,8 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/ngamux/middleware v0.0.8 // indirect
-	github.com/ngamux/ngamux v1.7.44 // indirect
+	github.com/ngamux/ngamux v1.7.47 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
