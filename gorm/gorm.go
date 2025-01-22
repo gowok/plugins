@@ -5,6 +5,7 @@ import (
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/health"
+	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"
@@ -20,17 +21,12 @@ var dbs = make(dbMap)
 func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Project) {
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
 	return func(project *gowok.Project) {
-		configAny, ok := project.ConfigMap["gorm"]
-		if !ok {
-			slog.Warn("no configuration", "plugin", plugin)
+		var config Configs
+		err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "gorm"), &config)
+		if err != nil {
+			slog.Warn("no configuration", "plugin", plugin, "error", err)
 			return
 		}
-		configMap, ok := configAny.(map[string]any)
-		if !ok {
-			slog.Warn("no configuration", "plugin", plugin)
-			return
-		}
-		config := ConfigFromMap(configMap)
 
 		for name, dbC := range config {
 			if !dbC.Enabled {
