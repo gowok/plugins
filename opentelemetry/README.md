@@ -15,18 +15,17 @@ OpenTelemetry is an open-source observability framework designed to provide a st
 on config.yaml or gowok.yaml set
 ``` yaml
 opentelemetry:
-  enabled: true
-  serviceName: coba-coba
-  # if true, this will be print on terminal
-  localExporter: true
-  # set jaeger exporter if you use jaeger
-  jaegerExporter:
+  name: coba-coba
+  exporters:
+  - driver: local
     enabled: true
-    endpoint: https://jager.url/blablabla
-  # set metric if you want to see metric with grafana or prometheus
-  metricExporter:
+  - driver: otlp
     enabled: true
-    path: /metrics
+    insecure: false
+    endpoint: localhost:4318
+  - driver: prometheus
+    enabled: true
+    endpoint: /metrics
 ```
 
 on code:
@@ -51,12 +50,17 @@ app:
     host: :8080
 
 opentelemetry:
-  enabled: true
-  serviceName: coba-coba
-  localExporter: true
-  metricExporter:
+  name: coba-coba
+  exporters:
+  - driver: local
     enabled: true
-    path: /metrics
+  - driver: otlp
+    enabled: true
+    insecure: false
+    endpoint: localhost:4318
+  - driver: prometheus
+    enabled: true
+    endpoint: /metrics
 ```
 
 ``` go

@@ -3,6 +3,7 @@ package opentelemetry
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/maps"
@@ -16,8 +17,10 @@ import (
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
+
+var traces = map[string]trace.TracerProviderOption{}
 
 func Configure(project *gowok.Project) {
 	var config Config
@@ -26,56 +29,65 @@ func Configure(project *gowok.Project) {
 		slog.Error("failed to load configuration", "error", err)
 		return
 	}
-	var opts []trace.TracerProviderOption
-
-	if config.LocalExporter {
-		// Inisialisasi console exporter
-		exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-		if err != nil {
-			slog.Error("failed to initialize stdout exporter", "error", err)
-			return
-		}
-
-		opts = append(opts, trace.WithSpanProcessor(trace.NewSimpleSpanProcessor(exporter)))
-
+	opts := []trace.TracerProviderOption{
+		trace.WithSampler(trace.ParentBased(trace.AlwaysSample())),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(config.Name),
+			semconv.ServiceVersionKey.String("1.0.0"),
+		)),
 	}
 
-	if config.JaegerExporter.Enabled {
-		exporter, err := otlptracehttp.New(context.Background(), otlptracehttp.WithEndpoint(config.JaegerExporter.Endpoint))
-		if err != nil {
-			slog.Error("failed to initialize jaeger exporter", "error", err)
-			return
+	for _, configTrace := range config.Exporters {
+		if !configTrace.Enabled {
+			continue
 		}
 
-		opts = append(opts,
-			trace.WithBatcher(exporter),
-			trace.WithResource(resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String(config.ServiceName),
-				// attribute.String("environment", "env"),
-			)),
-		)
+		switch configTrace.Driver {
+		case "local":
+			exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
+			if err != nil {
+				slog.Error("failed to initialize", "exporter", configTrace.Driver, "error", err)
+				return
+			}
+			opts = append(opts, trace.WithSpanProcessor(trace.NewSimpleSpanProcessor(exporter)))
+			otel.SetTracerProvider(trace.NewTracerProvider(opts...))
+
+		case "jaeger", "otlp":
+			_opts := []otlptracehttp.Option{
+				otlptracehttp.WithEndpoint(configTrace.Endpoint),
+			}
+			if configTrace.Insecure {
+				_opts = append(_opts, otlptracehttp.WithInsecure())
+			}
+			exporter, err := otlptracehttp.New(context.Background(), _opts...)
+			if err != nil {
+				slog.Error("failed to initialize", "exporter", configTrace.Driver, "error", err)
+				return
+			}
+			opts = append(opts, trace.WithBatcher(exporter, trace.WithBatchTimeout(3*time.Second)))
+			otel.SetTracerProvider(trace.NewTracerProvider(opts...))
+
+		case "prometheus":
+			if configTrace.Endpoint == "" {
+				slog.Error("failed to start", "metric", configTrace.Driver, "required", "endpoint")
+				return
+			}
+			if err := runtimemetrics.Start(); err != nil {
+				slog.Error("failed to start", "metric", configTrace.Driver, "error", err)
+				return
+			}
+
+			exporter, err := prometheus.New()
+			if err != nil {
+				slog.Error("failed to start", "metric", configTrace.Driver, "error", err)
+				return
+			}
+			provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
+			otel.SetMeterProvider(provider)
+
+			router.Get(configTrace.Endpoint, promhttp.Handler().ServeHTTP)
+		}
 	}
 
-	if config.MetricExporter.Enabled {
-		if err := runtimemetrics.Start(); err != nil {
-			slog.Error("failed to start runtime metrics", "error", err)
-			return
-		}
-
-		exporter, err := prometheus.New()
-		if err != nil {
-			slog.Error("failed to initialize prometheus exporter", "error", err)
-			return
-		}
-		provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
-		otel.SetMeterProvider(provider)
-
-		router.Get(config.MetricExporter.Path, promhttp.Handler().ServeHTTP)
-	}
-
-	tracerProvider := trace.NewTracerProvider(
-		opts...,
-	)
-	otel.SetTracerProvider(tracerProvider)
 }

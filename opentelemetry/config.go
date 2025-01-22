@@ -1,19 +1,13 @@
 package opentelemetry
 
 type Config struct {
-	Enabled        bool
-	ServiceName    string
-	LocalExporter  bool
-	JaegerExporter Jaeger
-	MetricExporter MetricExporter
+	Name      string
+	Exporters []Exporter
 }
 
-type Jaeger struct {
-	Enabled  bool
+type Exporter struct {
 	Endpoint string
-}
-
-type MetricExporter struct {
-	Enabled bool
-	Path    string
+	Driver   string
+	Enabled  bool
+	Insecure bool
 }
