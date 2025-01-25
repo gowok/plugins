@@ -3,7 +3,7 @@ module github.com/gowok/plugins/mongo
 go 1.23.4
 
 require (
-	github.com/gowok/gowok v0.3.75
+	github.com/gowok/gowok v0.3.81
 	go.mongodb.org/mongo-driver v1.17.2
 )
 
@@ -16,7 +16,8 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/ngamux/middleware v0.0.8 // indirect
-	github.com/ngamux/ngamux v1.7.44 // indirect
+	github.com/ngamux/ngamux v1.7.47 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect

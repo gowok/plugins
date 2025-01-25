@@ -13,9 +13,7 @@ import (
 
 var plugin = "mongo"
 
-type mongoDBMap map[string]*mongo.Client
-
-var mongos = make(mongoDBMap)
+var mongos = make(map[string]*mongo.Client)
 
 func Configure(project *gowok.Project) {
 	var config Configs
@@ -24,7 +22,7 @@ func Configure(project *gowok.Project) {
 		slog.Warn("no configuration", "plugin", "mongo")
 	}
 
-	mongos = make(mongoDBMap)
+	mongos = make(map[string]*mongo.Client)
 	c := context.Background()
 
 	for name, dbC := range config {
