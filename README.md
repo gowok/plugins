@@ -11,6 +11,7 @@ Here some of available plugins:
 * [openapi](https://github.com/gowok/plugins/tree/master/openapi) - Serving API documentation with [OpenAPI](https://www.openapis.org) standard.
 * [opentelemetry](https://github.com/gowok/plugins/tree/master/opentelemetry) - Metrics and tracers telemetry exporter.
 * [policy](https://github.com/gowok/plugins/tree/master/policy) - Manage access rules to authorize user with all [Casbin](https://casbin.org) abilities.
+* [translator](https://github.com/gowok/plugins/tree/master/translator) - Utilities to make translation easier to use.
 * [validator](https://github.com/gowok/plugins/tree/master/validator) - Utilities to make validation easier to use.
 
 ## Usage
