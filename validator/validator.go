@@ -5,11 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	govalidator "github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
-	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 )
@@ -18,7 +15,6 @@ type validator struct {
 	validate *govalidator.Validate
 	trans    ut.Translator
 }
-
 type ValidationError struct {
 	errors       govalidator.ValidationErrors
 	translations govalidator.ValidationErrorsTranslations
@@ -68,28 +64,6 @@ func (err ValidationError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(err.errorJSON)
 }
 
-var vv = singleton.New(func() *validator {
-	validate := govalidator.New()
-	v := &validator{
-		validate: validate,
-		trans:    nil,
-	}
-
-	en := en.New()
-	uni := ut.New(en, en)
-	trans, ok := uni.GetTranslator("en")
-	if !ok {
-		return nil
-	}
-
-	err := en_translations.RegisterDefaultTranslations(v.validate, trans)
-	if err != nil {
-		return nil
-	}
-	v.trans = trans
-	return v
-})
-
 func SetTranslator(trans ut.Translator, localeFunc func(*govalidator.Validate, ut.Translator) error) {
 	v := *vv()
 	v.trans = trans
@@ -105,6 +79,11 @@ func (v *validator) registerTranslationTag(tag, message string, override bool) e
 		return t
 	})
 	return err
+}
+
+func RegisterValidation(tag string, fn govalidator.Func, callValidationEvenIfNull ...bool) {
+	v := *vv()
+	v.validate.RegisterValidation(tag, fn, callValidationEvenIfNull...)
 }
 
 func ValidateStruct(input any, trans map[string]string) ValidationError {
