@@ -175,6 +175,10 @@ func specSchemaOfReflectType(t reflect.Type) *spec.Schema {
 		fieldSchema = spec.Float32Property()
 	case reflect.Bool:
 		fieldSchema = spec.BooleanProperty()
+	case reflect.Slice:
+		fieldSchema = spec.ArrayProperty(nil)
+	case reflect.Struct:
+		fieldSchema = spec.MapProperty(nil)
 	default:
 		fieldSchema = spec.StringProperty()
 	}
