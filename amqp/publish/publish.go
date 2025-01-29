@@ -14,14 +14,14 @@ type publishing struct {
 	Mandatory, Immediate bool
 }
 
-func Publish(message amqp.Publishing, opts ...func(*publishing)) (*amqp.Publishing, error) {
+func New(message amqp.Publishing, opts ...func(*publishing)) (*amqp.Publishing, error) {
 	p := publishing{}
 	for _, opt := range opts {
 		opt(&p)
 	}
 
 	if p.Channel == nil {
-		ch, err := channel.Channel()
+		ch, err := channel.New()
 		if err != nil {
 			return nil, err
 		}

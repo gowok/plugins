@@ -16,14 +16,14 @@ type queue struct {
 	Channel    *amqp.Channel
 }
 
-func Queue(name string, opts ...func(*queue)) (amqp.Queue, error) {
+func New(name string, opts ...func(*queue)) (amqp.Queue, error) {
 	q := queue{Name: name}
 	for _, opt := range opts {
 		opt(&q)
 	}
 
 	if q.Channel == nil {
-		ch, err := channel.Channel()
+		ch, err := channel.New()
 		if err != nil {
 			return amqp.Queue{}, err
 		}

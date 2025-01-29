@@ -20,7 +20,7 @@ func Consume(opts ...func(*consuming)) (<-chan amqp.Delivery, error) {
 	}
 
 	if c.Channel == nil {
-		ch, err := channel.Channel()
+		ch, err := channel.New()
 		if err != nil {
 			return nil, err
 		}
