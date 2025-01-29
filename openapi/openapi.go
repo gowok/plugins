@@ -186,7 +186,7 @@ func specSchemaOfReflectType(t reflect.Type) *spec.Schema {
 	return fieldSchema
 }
 
-func (docs *httpDocs) specSchemaOfStruct(v interface{}) *spec.Schema {
+func specSchemaOfStruct(v interface{}) *spec.Schema {
 	t := reflect.TypeOf(v)
 	schema := spec.MapProperty(nil).WithProperties(make(map[string]spec.Schema))
 	schema.AdditionalProperties = &spec.SchemaOrBool{Allows: false}
@@ -202,8 +202,13 @@ func (docs *httpDocs) specSchemaOfStruct(v interface{}) *spec.Schema {
 			jsonTag = jsonTagParts[0]
 		}
 
+		if prop, ok := sqlNull[field.Type]; ok {
+			schema.Properties[jsonTag] = *prop
+			continue
+		}
+
 		if field.Type.Kind() == reflect.Struct {
-			nestedSchema := docs.specSchemaOfStruct(reflect.New(field.Type).Elem().Interface())
+			nestedSchema := specSchemaOfStruct(reflect.New(field.Type).Elem().Interface())
 			schema.Properties[jsonTag] = *nestedSchema
 			continue
 		}
@@ -224,7 +229,7 @@ func (docs *httpDocs) AddDefinition(schema any) spec.Ref {
 	t := reflect.TypeOf(schema)
 	ss := &spec.Schema{}
 	if t.Kind() == reflect.Struct {
-		ss = docs.specSchemaOfStruct(schema)
+		ss = specSchemaOfStruct(schema)
 	} else {
 		ss = specSchemaOfReflectType(t)
 		ss.Example = schema
