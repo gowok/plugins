@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/health"
@@ -93,4 +94,12 @@ func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 	}
 
 	return some.Empty[*gorm.DB]()
+}
+
+func SoftDelete(db *gorm.DB, model any, id string) error {
+	return db.Model(model).Where("id = ?", id).Updates(struct {
+		DeletedAt time.Time
+	}{
+		DeletedAt: time.Now(),
+	}).Error
 }
