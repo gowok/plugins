@@ -29,9 +29,8 @@ var fiber_ = singleton.New(func() *fiber.App {
 		return nil
 	}
 
-	project := gowok.Get()
 	app := fiber.New()
-	project.Hooks.OnStarting(func() {
+	gowok.Hooks().SetOnStarting(func() {
 		go func() {
 			err := app.Listen(config.Host)
 			if err != nil {
@@ -41,7 +40,7 @@ var fiber_ = singleton.New(func() *fiber.App {
 		}()
 	})
 
-	project.Hooks.OnStopped(func() {
+	gowok.Hooks().SetOnStopped(func() {
 		err := app.ShutdownWithTimeout(10 * time.Second)
 		if err != nil {
 			slog.Warn("problem happened on shutdown", "plugin", plugin, "error", err)
