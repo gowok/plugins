@@ -29,7 +29,7 @@ var fiber_ = singleton.New(func() *fiber.App {
 		return nil
 	}
 
-	app := fiber.New()
+	app := fiber.New(config.Config)
 	gowok.Hooks().SetOnStarting(func() {
 		go func() {
 			err := app.Listen(config.Host)
