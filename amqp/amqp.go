@@ -6,9 +6,9 @@ import (
 
 	"math/rand"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/health"
-	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
