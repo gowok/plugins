@@ -1,10 +1,10 @@
 module github.com/gowok/plugins/fiber
 
-go 1.23.4
+go 1.24.5
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.6
-	github.com/gowok/gowok v0.3.78
+	github.com/gowok/gowok v0.3.91
 )
 
 require (
