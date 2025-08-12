@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/health"
-	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"

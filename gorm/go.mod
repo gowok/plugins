@@ -1,8 +1,9 @@
 module github.com/gowok/plugins/gorm
 
-go 1.23.4
+go 1.24.6
 
 require (
+	github.com/gowok/fp v0.2.0
 	github.com/gowok/gowok v0.3.77
 	github.com/ngamux/ngamux v1.7.44
 	gorm.io/gorm v1.25.12
