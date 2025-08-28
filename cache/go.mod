@@ -1,13 +1,14 @@
 module github.com/gowok/plugins/cache
 
-go 1.23.4
+go 1.24.6
 
 require (
 	github.com/dgraph-io/ristretto v0.2.0
 	github.com/eko/gocache/lib/v4 v4.1.6
 	github.com/eko/gocache/store/redis/v4 v4.2.2
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
-	github.com/gowok/gowok v0.3.82
+	github.com/gowok/fp v0.2.0
+	github.com/gowok/gowok v0.3.93
 	github.com/redis/go-redis/v9 v9.7.0
 )
 
@@ -18,7 +19,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.3.1 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect

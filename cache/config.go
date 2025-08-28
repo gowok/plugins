@@ -3,8 +3,8 @@ package cache
 import (
 	"errors"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
 )
 
 type Config struct {
@@ -17,7 +17,7 @@ type Configs map[string]Config
 
 func ConfigFromMap(configMap map[string]any) Configs {
 	c := make(Configs)
-	maps.MapToStruct(configMap, &c)
+	maps.ToStruct(configMap, &c)
 	return c
 }
 
