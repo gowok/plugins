@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-openapi/jsonreference"
 	"github.com/go-openapi/spec"
-	"github.com/gowok/gowok/maps"
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 	"gopkg.in/yaml.v3"

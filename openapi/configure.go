@@ -3,8 +3,8 @@ package openapi
 import (
 	"log/slog"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/singleton"
 )
 
