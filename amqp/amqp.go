@@ -18,7 +18,7 @@ import (
 var plugin = "amqp"
 
 var connection = singleton.New(func() *amqp.Connection {
-	configMap := maps.Get(gowok.Get().ConfigMap, "amqp", map[string]any{})
+	configMap := maps.Get(gowok.Config.Map(), "amqp", map[string]any{})
 	var config Config
 	err := maps.ToStruct(configMap, &config)
 	if err != nil {
