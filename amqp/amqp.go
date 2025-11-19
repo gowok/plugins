@@ -8,7 +8,6 @@ import (
 
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/health"
 	"github.com/gowok/gowok/singleton"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
@@ -36,7 +35,7 @@ var connection = singleton.New(func() *amqp.Connection {
 		return nil
 	}
 
-	health.Add("amqp", healthFunc(c))
+	gowok.Health.Add("amqp", healthFunc(c))
 
 	return c
 })
