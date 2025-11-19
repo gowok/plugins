@@ -4,7 +4,6 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/must"
 	"github.com/gowok/gowok/singleton"
 )
 
@@ -105,9 +104,9 @@ func Configure(model string, opts ...Option) func(*gowok.Project) {
 		p := &enforcer{}
 		switch model {
 		case "rbac", "RBAC":
-			p = must.Must(NewPolicyRBAC(opts...))
+			p = gowok.Must(NewPolicyRBAC(opts...))
 		case "abac", "ABAC":
-			p = must.Must(NewPolicyRBAC(opts...))
+			p = gowok.Must(NewPolicyRBAC(opts...))
 		}
 		policy(p)
 	}
