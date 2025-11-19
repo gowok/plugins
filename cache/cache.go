@@ -12,7 +12,6 @@ import (
 	store_memory "github.com/eko/gocache/store/ristretto/v4"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/async"
-	"github.com/gowok/gowok/must"
 	"github.com/gowok/gowok/some"
 	"github.com/redis/go-redis/v9"
 )
@@ -41,7 +40,7 @@ func Configure(project *gowok.Project) {
 
 		tasks = append(tasks, func() (res any, err error) {
 			if dbC.Driver == "memory" {
-				clientOpt := must.Must(ristretto.NewCache(&ristretto.Config{NumCounters: 1e7,
+				clientOpt := gowok.Must(ristretto.NewCache(&ristretto.Config{NumCounters: 1e7,
 					MaxCost:     1 << 30,
 					BufferItems: 64,
 				}))
@@ -50,7 +49,7 @@ func Configure(project *gowok.Project) {
 			}
 
 			if dbC.Driver == "redis" {
-				clientOpt := must.Must(redis.ParseURL(dbC.DSN))
+				clientOpt := gowok.Must(redis.ParseURL(dbC.DSN))
 				caches.Store(name, store_redis.NewRedis(redis.NewClient(clientOpt)))
 				return
 			}
