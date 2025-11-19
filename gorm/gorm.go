@@ -22,7 +22,7 @@ func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Proje
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
 	return func(project *gowok.Project) {
 		var config Configs
-		err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "gorm"), &config)
+		err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "gorm"), &config)
 		if err != nil {
 			slog.Warn("no configuration", "plugin", plugin, "error", err)
 			return
