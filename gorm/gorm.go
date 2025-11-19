@@ -6,7 +6,6 @@ import (
 
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/health"
 	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"
@@ -52,7 +51,7 @@ func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Proje
 			if name != "default" {
 				healthName += "-" + name
 			}
-			health.Add(healthName, func() any {
+			gowok.Health.Add(healthName, func() any {
 				var a int
 				if err := db.Raw("select 1").Scan(&a).Error; err != nil {
 					return ngamux.Map{"status": "DOWN"}
