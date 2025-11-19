@@ -22,7 +22,7 @@ func ConfigFromMap(configMap map[string]any) Configs {
 }
 
 func ConfigFromProject(project *gowok.Project) (Configs, error) {
-	configAny, ok := project.ConfigMap["cache"]
+	configAny, ok := gowok.Config.Map()["cache"]
 	if !ok {
 		return nil, errors.New("no configuration")
 	}
