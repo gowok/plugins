@@ -11,13 +11,13 @@ import (
 var plugin = "openapi"
 
 var docs = singleton.New(func() *httpDocs {
-	openapiFile := maps.Get[string](gowok.Get().ConfigMap, "openapi")
+	openapiFile := maps.Get[string](gowok.Config.Map(), "openapi")
 	if openapiFile != "" {
 		return newHttpDocsFromYAMLFile(openapiFile)
 	}
 
 	hd := httpDocs{}
-	err := maps.ToStruct(maps.Get[map[string]any](gowok.Get().ConfigMap, "openapi"), &hd)
+	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "openapi"), &hd)
 	if err == nil {
 		return newHttpDocs(hd)
 	}
