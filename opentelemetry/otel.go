@@ -5,9 +5,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
-	"github.com/gowok/gowok/router"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	runtimemetrics "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
@@ -22,9 +21,9 @@ import (
 
 var traces = map[string]trace.TracerProviderOption{}
 
-func Configure(project *gowok.Project) {
+func Configure() {
 	var config Config
-	err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "opentelemetry"), &config)
+	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "opentelemetry"), &config)
 	if err != nil {
 		slog.Error("failed to load configuration", "error", err)
 		return
@@ -86,7 +85,7 @@ func Configure(project *gowok.Project) {
 			provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
 			otel.SetMeterProvider(provider)
 
-			router.Get(configTrace.Endpoint, promhttp.Handler().ServeHTTP)
+			gowok.Web.Get(configTrace.Endpoint, promhttp.Handler().ServeHTTP)
 		}
 	}
 
