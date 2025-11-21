@@ -98,9 +98,9 @@ var policy = singleton.New(func() *enforcer {
 	return &enforcer{}
 })
 
-func Configure(model string, opts ...Option) func(*gowok.Project) {
+func Configure(model string, opts ...Option) func() {
 	opts = append(opts, withAdapter())
-	return func(project *gowok.Project) {
+	return func() {
 		p := &enforcer{}
 		switch model {
 		case "rbac", "RBAC":
@@ -112,11 +112,11 @@ func Configure(model string, opts ...Option) func(*gowok.Project) {
 	}
 }
 
-func ConfigureRBAC(opts ...Option) func(*gowok.Project) {
+func ConfigureRBAC(opts ...Option) func() {
 	return Configure("rbac", opts...)
 }
 
-func ConfigureABAC(opts ...Option) func(*gowok.Project) {
+func ConfigureABAC(opts ...Option) func() {
 	return Configure("abac", opts...)
 }
 

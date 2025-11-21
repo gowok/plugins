@@ -6,7 +6,7 @@ require (
 	github.com/Blank-Xu/sql-adapter v1.1.1
 	github.com/casbin/casbin/v2 v2.103.0
 	github.com/casbin/redis-adapter/v3 v3.5.0
-	github.com/gowok/gowok v0.4.22
+	github.com/gowok/gowok v0.4.23
 	github.com/gowok/plugins/cache v0.0.7
 )
 
@@ -24,7 +24,6 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/gomodule/redigo v1.8.9 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gowok/fp v0.2.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
