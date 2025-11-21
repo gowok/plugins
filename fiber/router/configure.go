@@ -6,16 +6,15 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/singleton"
 )
 
 var plugin = "fiber"
 var config_ = singleton.New(func() config {
-	project := gowok.Get()
 	var c config
-	err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "fiber"), &c)
+	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "fiber"), &c)
 	if err != nil {
 		slog.Warn("failed to load configuration", "plugin", plugin, "error", err)
 		return c
@@ -29,8 +28,9 @@ var fiber_ = singleton.New(func() *fiber.App {
 		return nil
 	}
 
+	gowok.Config.Forever = true
 	app := fiber.New(config.Config)
-	gowok.Hooks().SetOnStarting(func() {
+	gowok.Hooks.SetOnStarting(func() {
 		go func() {
 			err := app.Listen(config.Host)
 			if err != nil {
@@ -40,7 +40,7 @@ var fiber_ = singleton.New(func() *fiber.App {
 		}()
 	})
 
-	gowok.Hooks().SetOnStopped(func() {
+	gowok.Hooks.SetOnStopped(func() {
 		err := app.ShutdownWithTimeout(10 * time.Second)
 		if err != nil {
 			slog.Warn("problem happened on shutdown", "plugin", plugin, "error", err)
@@ -69,7 +69,7 @@ func App() *fiber.App {
 	return *a
 }
 
-func Configure(project *gowok.Project) {
+func Configure() {
 	_ = App()
 }
 
