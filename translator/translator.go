@@ -81,6 +81,10 @@ func FmtTimeShort(time time.Time) string {
 	return Get().FmtTimeShort(time)
 }
 
+func Add(key, text string, override bool) {
+	Get().Add(key, text, override)
+}
+
 func AddDictionary(name string, dict map[string]string) {
 	t := Get(name)
 	for k, tt := range dict {

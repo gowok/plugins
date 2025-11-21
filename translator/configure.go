@@ -3,7 +3,6 @@ package translator
 import (
 	"github.com/go-playground/locales"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/gowok/gowok"
 )
 
 type Map map[string]func() locales.Translator
@@ -15,8 +14,8 @@ var translator *ut.UniversalTranslator
 func Configure(
 	fallback func() locales.Translator,
 	translators ...func() locales.Translator,
-) func(*gowok.Project) {
-	return func(project *gowok.Project) {
+) func() {
+	return func() {
 		ff := fallback()
 		_translators := []locales.Translator{ff}
 		for i, t := range translators {
