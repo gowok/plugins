@@ -6,7 +6,7 @@ require (
 	github.com/go-openapi/jsonreference v0.21.0
 	github.com/go-openapi/spec v0.21.0
 	github.com/gowok/fp v0.2.1
-	github.com/gowok/gowok v0.4.22
+	github.com/gowok/gowok v0.4.23
 	github.com/gowok/should v0.0.0-20240831060519-d8ab7c7891fb
 	github.com/ngamux/ngamux v1.7.51
 	gopkg.in/yaml.v3 v3.0.1
