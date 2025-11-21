@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
 	"github.com/gowok/gowok/some"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,9 +15,9 @@ var plugin = "mongo"
 
 var mongos = make(map[string]*mongo.Client)
 
-func Configure(project *gowok.Project) {
+func Configure() {
 	var config Configs
-	err := maps.ToStruct(maps.Get[map[string]any](project.ConfigMap, "mongo"), &config)
+	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "mongo"), &config)
 	if err != nil {
 		slog.Warn("no configuration", "plugin", "mongo")
 	}

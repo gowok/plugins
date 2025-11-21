@@ -1,6 +1,6 @@
 package mongo
 
-import "github.com/gowok/gowok/maps"
+import "github.com/gowok/fp/maps"
 
 type Config struct {
 	DSN     string
