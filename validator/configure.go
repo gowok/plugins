@@ -7,7 +7,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	govalidator "github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
 )
 
@@ -43,13 +42,13 @@ func WithDBUnique(fn func(table, column, value string) bool) func(*config) {
 	}
 }
 
-func Configure(opts ...func(*config)) func(*gowok.Project) {
+func Configure(opts ...func(*config)) func() {
 	config := &config{}
 	for _, opt := range opts {
 		opt(config)
 	}
 
-	return func(project *gowok.Project) {
+	return func() {
 		vv()
 
 		if config.unique != nil {
