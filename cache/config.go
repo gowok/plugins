@@ -21,7 +21,7 @@ func ConfigFromMap(configMap map[string]any) Configs {
 	return c
 }
 
-func ConfigFromProject(project *gowok.Project) (Configs, error) {
+func ConfigFromProject() (Configs, error) {
 	configAny, ok := gowok.Config.Map()["cache"]
 	if !ok {
 		return nil, errors.New("no configuration")

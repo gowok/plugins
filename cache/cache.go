@@ -25,8 +25,8 @@ type C[T any] struct {
 	*cache.Cache[T]
 }
 
-func Configure(project *gowok.Project) {
-	config, err := ConfigFromProject(project)
+func Configure() {
+	config, err := ConfigFromProject()
 	if err != nil {
 		slog.Warn(err.Error(), "plugin", plugin)
 		return

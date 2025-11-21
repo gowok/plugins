@@ -8,7 +8,7 @@ require (
 	github.com/eko/gocache/store/redis/v4 v4.2.2
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/gowok/fp v0.2.1
-	github.com/gowok/gowok v0.4.22
+	github.com/gowok/gowok v0.4.23
 	github.com/redis/go-redis/v9 v9.13.0
 )
 
