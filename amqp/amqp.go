@@ -52,7 +52,7 @@ func Connection() some.Some[*amqp.Connection] {
 	return some.Of(*c)
 }
 
-func Configure(project *gowok.Project) {
+func Configure() {
 	_ = connection()
 }
 
@@ -115,11 +115,10 @@ func healthFunc(c *amqp.Connection) func() any {
 		if err != nil {
 			return status
 		}
-		for d := range msgs {
-			if string(d.Body) != body {
-				return status
-			}
-			break
+
+		d := <-msgs
+		if string(d.Body) != body {
+			return status
 		}
 
 		return ngamux.Map{"status": "UP"}

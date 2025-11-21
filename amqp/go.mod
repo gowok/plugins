@@ -4,7 +4,7 @@ go 1.24.6
 
 require (
 	github.com/gowok/fp v0.2.1
-	github.com/gowok/gowok v0.4.22
+	github.com/gowok/gowok v0.4.23
 )
 
 require (
