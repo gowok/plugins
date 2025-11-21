@@ -18,9 +18,9 @@ type dbMap map[string]*gorm.DB
 var plugin = "gorm"
 var dbs = make(dbMap)
 
-func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(*gowok.Project) {
+func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func() {
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
-	return func(project *gowok.Project) {
+	return func() {
 		var config Configs
 		err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "gorm"), &config)
 		if err != nil {
