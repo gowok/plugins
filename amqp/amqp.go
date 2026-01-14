@@ -18,26 +18,7 @@ import (
 var plugin = "amqp"
 
 var connection = singleton.New(func() *amqp.Connection {
-	configMap := maps.Get(gowok.Config.Map(), "amqp", map[string]any{})
-	var config Config
-	err := maps.ToStruct(configMap, &config)
-	if err != nil {
-		slog.Warn("failed to map configuration", "plugin", plugin, "error", err)
-		return nil
-	}
-	if !config.Enabled {
-		return nil
-	}
-
-	c, err := amqp.Dial(config.DSN)
-	if err != nil {
-		slog.Warn("failed to connect", "plugin", plugin, "error", err)
-		return nil
-	}
-
-	gowok.Health.Add("amqp", healthFunc(c))
-
-	return c
+	return nil
 })
 
 func Connection() some.Some[*amqp.Connection] {
@@ -52,8 +33,49 @@ func Connection() some.Some[*amqp.Connection] {
 	return some.Of(*c)
 }
 
-func Configure() {
-	_ = connection()
+func Configure(onError func(error)) func() {
+	return func() {
+		slog := slog.With("plugin", plugin)
+		if onError == nil {
+			onError = func(err error) {}
+		}
+
+		configMap := maps.Get(gowok.Config.Map(), "amqp", map[string]any{})
+		var config Config
+		err := maps.ToStruct(configMap, &config)
+		if err != nil {
+			onError(err)
+			slog.Warn("failed to map configuration", "error", err)
+			return
+		}
+		if !config.Enabled {
+			return
+		}
+
+		c, err := amqp.Dial(config.DSN)
+		if err != nil {
+			onError(err)
+			slog.Warn("failed to connect", "error", err)
+			return
+		}
+
+		gowok.Health.Add("amqp", healthFunc(c))
+
+		closeChan := make(chan *amqp.Error)
+		c.NotifyClose(closeChan)
+
+		go func() {
+			err = <-closeChan
+			if err != nil {
+				onError(err)
+				slog.Warn("connection closed, reconnecting", "error", err)
+			}
+
+			c.Close()
+		}()
+
+		connection(c)
+	}
 }
 
 type Message struct {
