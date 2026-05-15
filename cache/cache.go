@@ -10,9 +10,9 @@ import (
 	"github.com/eko/gocache/lib/v4/store"
 	store_redis "github.com/eko/gocache/store/redis/v4"
 	store_memory "github.com/eko/gocache/store/ristretto/v4"
+	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/async"
-	"github.com/gowok/gowok/some"
 	"github.com/redis/go-redis/v9"
 )
 
