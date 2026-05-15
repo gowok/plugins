@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/gowok/fp/maps"
+	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/some"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
