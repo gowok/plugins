@@ -7,9 +7,9 @@ import (
 	"math/rand"
 
 	"github.com/gowok/fp/maps"
+	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
-	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 
 	amqp "github.com/rabbitmq/amqp091-go"
