@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gowok/fp/maps"
+	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/some"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
