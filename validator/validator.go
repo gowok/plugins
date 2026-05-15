@@ -7,7 +7,7 @@ import (
 
 	ut "github.com/go-playground/universal-translator"
 	govalidator "github.com/go-playground/validator/v10"
-	"github.com/gowok/gowok/some"
+	"github.com/gowok/fp/some"
 	"github.com/ngamux/ngamux"
 )
 
