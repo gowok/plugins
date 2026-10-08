@@ -17,12 +17,13 @@ type Configs map[string]Config
 
 func ConfigFromMap(configMap map[string]any) Configs {
 	c := make(Configs)
-	maps.MapToStruct(configMap, &c)
+	maps.ToStruct(configMap, &c)
 	return c
 }
 
 func ConfigFromProject(project *gowok.Project) (Configs, error) {
-	configAny, ok := project.ConfigMap["cache"]
+	configFull := gowok.Config.Map()
+	configAny, ok := configFull["cache"]
 	if !ok {
 		return nil, errors.New("no configuration")
 	}
