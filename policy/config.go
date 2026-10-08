@@ -4,7 +4,6 @@ import (
 	sqladapter "github.com/Blank-Xu/sql-adapter"
 	redisadapter "github.com/casbin/redis-adapter/v3"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/must"
 	"github.com/gowok/gowok/sql"
 	"github.com/gowok/plugins/cache"
 )
@@ -15,7 +14,7 @@ func withAdapter() Option {
 	return func(p *enforcer) {
 		if conf, ok := gowok.Get().Config.SQLs["policy"]; ok {
 			if db, ok := sql.DBNoDefault("policy").Get(); ok {
-				p.adapter = must.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
+				p.adapter = gowok.Must(sqladapter.NewAdapter(db, conf.Driver, "casbin_rule"))
 				return
 			}
 		}
@@ -25,7 +24,7 @@ func withAdapter() Option {
 				if !conf.Enabled {
 					return
 				}
-				p.adapter = must.Must(redisadapter.NewAdapter("tcp", conf.DSN))
+				p.adapter = gowok.Must(redisadapter.NewAdapter("tcp", conf.DSN))
 				return
 			}
 		}
