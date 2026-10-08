@@ -3,8 +3,8 @@ package cache
 import (
 	"errors"
 
+	"github.com/gowok/fp/maps"
 	"github.com/gowok/gowok"
-	"github.com/gowok/gowok/maps"
 )
 
 type Config struct {
