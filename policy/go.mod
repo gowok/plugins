@@ -7,7 +7,7 @@ require (
 	github.com/casbin/casbin/v2 v2.103.0
 	github.com/casbin/redis-adapter/v3 v3.5.0
 	github.com/gowok/gowok v0.4.35
-	github.com/gowok/plugins/cache v0.1.0
+	github.com/gowok/plugins/cache v0.1.1
 )
 
 require (
