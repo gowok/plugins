@@ -8,7 +8,7 @@ require (
 	github.com/eko/gocache/store/redis/v4 v4.2.2
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.32
+	github.com/gowok/gowok v0.4.35
 	github.com/redis/go-redis/v9 v9.13.0
 )
 
@@ -24,7 +24,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/ngamux/middleware v0.0.11 // indirect
+	github.com/ngamux/middleware v0.0.12 // indirect
 	github.com/ngamux/ngamux v1.7.52 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
