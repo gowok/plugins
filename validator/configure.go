@@ -34,11 +34,18 @@ var vv = singleton.New(func() *validator {
 
 type config struct {
 	unique func(table, column, value string) bool
+	trans  ut.Translator
 }
 
 func WithDBUnique(fn func(table, column, value string) bool) func(*config) {
 	return func(c *config) {
 		c.unique = fn
+	}
+}
+
+func WithTranslator(trans ut.Translator) func(*config) {
+	return func(c *config) {
+		c.trans = trans
 	}
 }
 
@@ -49,10 +56,14 @@ func Configure(opts ...func(*config)) func() {
 	}
 
 	return func() {
-		vv()
+		v := *vv()
 
 		if config.unique != nil {
 			RegisterValidation("db-unique", registerValidationUnique(config.unique))
+		}
+
+		if config.trans != nil {
+			v.trans = config.trans
 		}
 	}
 }
