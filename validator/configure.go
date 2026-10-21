@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/go-playground/locales/en"
+	"github.com/go-playground/mold/v4"
+	"github.com/go-playground/mold/v4/modifiers"
 	ut "github.com/go-playground/universal-translator"
 	govalidator "github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
@@ -23,7 +25,6 @@ var vv = singleton.New(func() *validator {
 	if !ok {
 		return nil
 	}
-
 	err := en_translations.RegisterDefaultTranslations(v.validate, trans)
 	if err != nil {
 		return nil
@@ -67,6 +68,10 @@ func Configure(opts ...func(*config)) func() {
 		}
 	}
 }
+
+var Modifiers = singleton.New(func() mold.Transformer {
+	return *modifiers.New()
+})
 
 func registerValidationUnique(fn func(string, string, string) bool) func(field govalidator.FieldLevel) bool {
 	return func(field govalidator.FieldLevel) bool {

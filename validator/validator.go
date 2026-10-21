@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -67,7 +68,7 @@ func (err ValidationError) MarshalJSON() ([]byte, error) {
 func SetTranslator(trans ut.Translator, localeFunc func(*govalidator.Validate, ut.Translator) error) {
 	v := *vv()
 	v.trans = trans
-	localeFunc(v.validate, trans)
+	_ = localeFunc(v.validate, trans)
 	vv(v)
 }
 
@@ -83,12 +84,32 @@ func (v *validator) registerTranslationTag(tag, message string, override bool) e
 
 func RegisterValidation(tag string, fn govalidator.Func, callValidationEvenIfNull ...bool) {
 	v := *vv()
-	v.validate.RegisterValidation(tag, fn, callValidationEvenIfNull...)
+	_ = v.validate.RegisterValidation(tag, fn, callValidationEvenIfNull...)
 }
 
-func ValidateStruct(input any, trans map[string]string) ValidationError {
+type ValidateStructOpts struct {
+	trans  map[string]string
+	modify bool
+}
+
+type ValidateStructOptFn func(*ValidateStructOpts)
+
+func ValidateStruct(input any, optFns ...ValidateStructOptFn) ValidationError {
+	opts := ValidateStructOpts{
+		trans: make(map[string]string),
+	}
+	for _, o := range optFns {
+		o(&opts)
+	}
+
+	if opts.modify {
+		if err := Modifiers().Struct(context.TODO(), input); err != nil {
+			return ValidationError{errorMessage: err.Error()}
+		}
+	}
+
 	v := *vv()
-	for tag, message := range trans {
+	for tag, message := range opts.trans {
 		if !strings.Contains(tag, ".") {
 			tag = "*." + tag
 		}
@@ -106,14 +127,14 @@ func ValidateStruct(input any, trans map[string]string) ValidationError {
 	some.Of(err).IfPresent(func(err error) {
 		switch e := err.(type) {
 		case govalidator.ValidationErrors:
-			result = newValidationError(e, v.trans, trans)
+			result = newValidationError(e, v.trans, opts.trans)
 		}
 	})
 
 	return result
 }
 
-func ValidateJSON[T any](r *http.Request, schema T, trans map[string]string) (*T, *ValidationError) {
+func ValidateJSON[T any](r *http.Request, schema T, optFns ...ValidateStructOptFn) (*T, *ValidationError) {
 	err := ngamux.Req(r).JSON(&schema)
 	if err != nil {
 		return new(T), &ValidationError{
@@ -124,10 +145,22 @@ func ValidateJSON[T any](r *http.Request, schema T, trans map[string]string) (*T
 		}
 	}
 
-	errs := ValidateStruct(schema, trans)
+	errs := ValidateStruct(schema, optFns...)
 	if len(errs.Error()) > 0 {
 		return new(T), &errs
 	}
 
 	return &schema, nil
+}
+
+func WithModify() ValidateStructOptFn {
+	return func(vo *ValidateStructOpts) {
+		vo.modify = true
+	}
+}
+
+func WithTranslations(trans map[string]string) ValidateStructOptFn {
+	return func(vo *ValidateStructOpts) {
+		vo.trans = trans
+	}
 }
