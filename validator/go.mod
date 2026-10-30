@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.32
+	github.com/gowok/gowok v0.4.36
 	github.com/lib/pq v1.10.9
 	github.com/ngamux/ngamux v1.7.52
 )
@@ -20,7 +20,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/ngamux/middleware v0.0.11 // indirect
+	github.com/ngamux/middleware v0.0.12 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/segmentio/go-camelcase v0.0.0-20160726192923-7085f1e3c734 // indirect
 	github.com/segmentio/go-snakecase v1.2.0 // indirect

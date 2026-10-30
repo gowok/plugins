@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.32
+	github.com/gowok/gowok v0.4.36
 )
 
 require (
@@ -17,7 +17,7 @@ require (
 )
 
 require (
-	github.com/ngamux/middleware v0.0.11 // indirect
+	github.com/ngamux/middleware v0.0.12 // indirect
 	github.com/ngamux/ngamux v1.7.52
 	github.com/rabbitmq/amqp091-go v1.10.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect

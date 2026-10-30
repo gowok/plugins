@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.32
+	github.com/gowok/gowok v0.4.36
 	github.com/ngamux/ngamux v1.7.52
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.25.12
@@ -20,7 +20,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/ngamux/middleware v0.0.11 // indirect
+	github.com/ngamux/middleware v0.0.12 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
