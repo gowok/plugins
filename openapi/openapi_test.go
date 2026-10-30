@@ -5,8 +5,14 @@ import (
 
 	"github.com/go-openapi/spec"
 	"github.com/gowok/should"
-	"github.com/ngamux/ngamux"
 )
+
+type testRoute struct {
+	method, path string
+}
+
+func (r testRoute) Method() string { return r.method }
+func (r testRoute) Path() string   { return r.path }
 
 func httpDocsInitialize(t *testing.T) *httpDocs {
 	should := should.New(t)
@@ -48,14 +54,38 @@ func TestNewHttpDocs(t *testing.T) {
 
 func TestHttpDocsNew(t *testing.T) {
 	docs := httpDocsInitialize(t)
-	docs.New("1", func(o *spec.Operation) {
+	docs.Add("1", func(o *spec.Operation) {
 		should.NotNil(t, o)
-	})(ngamux.Route{
-		Method: "GET",
-		Path:   "/users",
+	})(testRoute{
+		method: "GET",
+		path:   "/users",
 	})
 
 	should.NotNil(t, docs.swagger.Paths.Paths["/users"].Get)
+}
+
+func TestHttpDocsAddReusedForMultipleRoutes(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	// A single descriptor reused for several routes must not share state.
+	add := docs.Add("shared", func(o *spec.Operation) {
+		o.AddParam(spec.QueryParam("q"))
+	})
+	add(testRoute{method: "GET", path: "/a"})
+	add(testRoute{method: "POST", path: "/b"})
+
+	getA := docs.swagger.Paths.Paths["/a"].Get
+	postB := docs.swagger.Paths.Paths["/b"].Post
+	should.NotNil(t, getA)
+	should.NotNil(t, postB)
+
+	// Each route must get its own operation, not the same pointer.
+	if getA == postB {
+		t.Fatal("operations for /a and /b share the same pointer")
+	}
+
+	// Registering POST /b must not leak the earlier GET operation into /b.
+	should.Nil(t, docs.swagger.Paths.Paths["/b"].Get)
 }
 
 func TestHttpDocsAddDefinition(t *testing.T) {

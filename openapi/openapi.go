@@ -114,15 +114,15 @@ type entry interface {
 }
 
 func (docs *httpDocs) Add(description string, callback func(*spec.Operation)) func(entry) {
-	operation := spec.NewOperation(description)
-	operation.Description = description
-	item := spec.PathItemProps{}
 	return func(route entry) {
+		operation := spec.NewOperation(description)
+		operation.Description = description
 		some.Of(callback).OrElse(func(*spec.Operation) {})(operation)
 
 		if docs.swagger.Paths == nil {
 			docs.swagger.Paths = &spec.Paths{Paths: map[string]spec.PathItem{}}
 		}
+		item := spec.PathItemProps{}
 		if itemFound, ok := docs.swagger.Paths.Paths[route.Path()]; ok {
 			item = itemFound.PathItemProps
 		}
