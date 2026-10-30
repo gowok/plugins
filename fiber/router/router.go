@@ -17,7 +17,7 @@ func Get(path string, handlerFunc ...fiber.Handler) {
 }
 
 func Post(path string, handlerFunc ...fiber.Handler) {
-	App().Get(path, handlerFunc...)
+	App().Post(path, handlerFunc...)
 }
 
 func Patch(path string, handlerFunc ...fiber.Handler) {
