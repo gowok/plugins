@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"log"
 	"log/slog"
 	"sync"
 
@@ -61,7 +60,7 @@ func Configure() {
 
 	_, err = async.All(tasks...)
 	if err != nil {
-		log.Fatalln(err)
+		slog.Error(err.Error(), "plugin", plugin)
 	}
 }
 
