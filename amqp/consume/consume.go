@@ -24,7 +24,6 @@ func Consume(opts ...func(*consuming)) (<-chan amqp.Delivery, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer ch.Close()
 		c.Channel = ch
 	}
 
