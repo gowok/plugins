@@ -321,6 +321,36 @@ func TestUpdateByIDAcceptsStruct(t *testing.T) {
 	}
 }
 
+func TestDeleteByIDIsUnscoped(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Delete().After("gorm:delete").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if err := DeleteByID[configuredKeyModel](db, "42"); err != nil {
+		t.Fatalf("delete by id failed: %v", err)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("delete by id should filter by the model primary key, got: %s", built)
+	}
+
+	if strings.Contains(built, "IS NULL") {
+		t.Fatalf("delete by id must be unscoped to remove the row, got: %s", built)
+	}
+}
+
 func TestDBNoDefaultWithoutName(t *testing.T) {
 	prev := dbs
 	dbs = dbMap{"default": &gorm.DB{}}

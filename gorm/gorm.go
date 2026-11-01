@@ -165,6 +165,11 @@ func UpdateByID[T any](db *gorm.DB, id any, values any) (T, error) {
 	return dest, err
 }
 
+func DeleteByID[T any](db *gorm.DB, id any) error {
+	var dest T
+	return db.Unscoped().Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Delete(&dest).Error
+}
+
 func SoftDelete[T any](db *gorm.DB, id string) error {
 	var dest T
 	return db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(struct {
