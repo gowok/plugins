@@ -81,6 +81,36 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
 	}
 }
 
+func TestGrantAndRevoke(t *testing.T) {
+	e, err := NewPolicyRBAC()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	ok, err := e.Enforce("alice", "data1", ActionRead)
+	if err != nil || ok {
+		t.Fatalf("before grant: got (%v, %v), want (false, nil)", ok, err)
+	}
+
+	if added, err := e.Grant("alice", "data1", ActionRead); err != nil || !added {
+		t.Fatalf("grant: got (%v, %v), want (true, nil)", added, err)
+	}
+	if ok, err := e.Enforce("alice", "data1", ActionRead); err != nil || !ok {
+		t.Fatalf("after grant: got (%v, %v), want (true, nil)", ok, err)
+	}
+
+	if removed, err := e.Revoke("alice", "data1", ActionRead); err != nil || !removed {
+		t.Fatalf("revoke: got (%v, %v), want (true, nil)", removed, err)
+	}
+	if ok, err := e.Enforce("alice", "data1", ActionRead); err != nil || ok {
+		t.Fatalf("after revoke: got (%v, %v), want (false, nil)", ok, err)
+	}
+
+	if _, err := (*enforcer)(nil).Grant("alice", "data1", ActionRead); err != ErrNilEnforcer {
+		t.Fatalf("grant on nil enforcer: got %v, want %v", err, ErrNilEnforcer)
+	}
+}
+
 func TestNewPolicySkipsNilOption(t *testing.T) {
 	e, err := NewPolicyRBAC(nil)
 	if err != nil {

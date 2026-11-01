@@ -22,11 +22,6 @@ var Actions = []string{
 	ActionDelete,
 }
 
-type enforcer struct {
-	*casbin.Enforcer
-	adapter any
-}
-
 func NewPolicy(modelStr string, opts ...Option) (*enforcer, error) {
 	m, err := model.NewModelFromString(modelStr)
 	if err != nil {

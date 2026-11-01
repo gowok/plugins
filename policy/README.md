@@ -45,3 +45,10 @@ To access it, you should get it from policy package.
 ```go
 policy.Enforcer()
 ```
+
+Rules can be changed with the `Grant` and `Revoke` helpers:
+
+```go
+ok, err := policy.Enforcer().Grant("alice", "data1", policy.ActionRead)
+ok, err = policy.Enforcer().Revoke("alice", "data1", policy.ActionRead)
+```
