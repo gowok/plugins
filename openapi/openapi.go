@@ -108,6 +108,15 @@ func newHttpDocsFromYAMLFile(filePath string) *httpDocs {
 	return hd
 }
 
+func (docs *httpDocs) AddTag(name, description string) {
+	docs.swagger.Tags = append(docs.swagger.Tags, spec.Tag{
+		TagProps: spec.TagProps{
+			Name:        name,
+			Description: description,
+		},
+	})
+}
+
 type entry interface {
 	Method() string
 	Path() string

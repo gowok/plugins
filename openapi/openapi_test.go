@@ -126,6 +126,18 @@ func TestSpecSchemaOfStructEmptyJSONName(t *testing.T) {
 	should.Equal(t, true, ok)
 }
 
+func TestHttpDocsAddTag(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	docs.AddTag("users", "User management")
+	docs.AddTag("orders", "Order management")
+
+	should.Equal(t, 2, len(docs.swagger.Tags))
+	should.Equal(t, "users", docs.swagger.Tags[0].Name)
+	should.Equal(t, "User management", docs.swagger.Tags[0].Description)
+	should.Equal(t, "orders", docs.swagger.Tags[1].Name)
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }
