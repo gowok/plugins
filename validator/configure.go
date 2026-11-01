@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -75,19 +77,22 @@ var Modifiers = singleton.New(func() mold.Transformer {
 
 func registerValidationUnique(fn func(string, string, string) bool) func(field govalidator.FieldLevel) bool {
 	return func(field govalidator.FieldLevel) bool {
-		fp := strings.Split(field.Param(), ".")
-		table := ""
-		column := ""
-		if len(fp) <= 0 {
+		param := strings.TrimSpace(field.Param())
+		if param == "" {
 			return true
 		}
 
-		table = fp[0]
-		if len(fp) == 1 {
-			column = fp[0]
-		} else {
+		fp := strings.SplitN(param, ".", 2)
+		table := fp[0]
+		column := fp[0]
+		if len(fp) > 1 {
 			column = fp[1]
 		}
-		return fn(table, column, field.Field().String())
+
+		value := field.Field().String()
+		if field.Field().Kind() != reflect.String {
+			value = fmt.Sprint(field.Field().Interface())
+		}
+		return fn(table, column, value)
 	}
 }

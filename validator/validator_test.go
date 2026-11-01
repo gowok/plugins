@@ -167,6 +167,40 @@ func TestValidationError_nonTranslatorMessage(t *testing.T) {
 	}
 }
 
+func TestRegisterValidationUnique_emptyParam(t *testing.T) {
+	RegisterValidation("db-unique-empty", registerValidationUnique(func(table, column, value string) bool {
+		t.Fatalf("expected no callback without a parameter, got (%q, %q, %q)", table, column, value)
+		return false
+	}))
+
+	type input struct {
+		Name string `validate:"db-unique-empty"`
+	}
+
+	if err := ValidateStruct(input{Name: "john"}); len(err.Error()) > 0 {
+		t.Fatalf("expected no error, got %q", err.Error())
+	}
+}
+
+func TestRegisterValidationUnique_value(t *testing.T) {
+	var gotTable, gotColumn, gotValue string
+	RegisterValidation("db-unique-value", registerValidationUnique(func(table, column, value string) bool {
+		gotTable, gotColumn, gotValue = table, column, value
+		return true
+	}))
+
+	type input struct {
+		ID int `validate:"db-unique-value=users.id"`
+	}
+
+	if err := ValidateStruct(input{ID: 42}); len(err.Error()) > 0 {
+		t.Fatalf("expected no error, got %q", err.Error())
+	}
+	if gotTable != "users" || gotColumn != "id" || gotValue != "42" {
+		t.Fatalf("unexpected lookup (%q, %q, %q)", gotTable, gotColumn, gotValue)
+	}
+}
+
 func TestValidateJSON_modifierError(t *testing.T) {
 	r := httptest.NewRequest("POST", "/", strings.NewReader("42"))
 	r.Header.Set("Content-Type", "application/json")
