@@ -153,11 +153,11 @@ func TestHttpDocsRemoveTag(t *testing.T) {
 	docs.AddTag("users", "User management")
 	docs.AddTag("orders", "Order management")
 
-	should.Equal(t, true, docs.RemoveTag("users"))
+	should.Equal(t, true, docs.DeleteTag("users"))
 	should.Equal(t, 1, len(docs.swagger.Tags))
 	should.Equal(t, "orders", docs.swagger.Tags[0].Name)
 
-	should.Equal(t, false, docs.RemoveTag("missing"))
+	should.Equal(t, false, docs.DeleteTag("missing"))
 	should.Equal(t, 1, len(docs.swagger.Tags))
 }
 

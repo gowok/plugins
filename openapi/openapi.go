@@ -122,7 +122,7 @@ func (docs *httpDocs) AddTag(name, description string) {
 	})
 }
 
-func (docs *httpDocs) RemoveTag(name string) bool {
+func (docs *httpDocs) DeleteTag(name string) bool {
 	for i, tag := range docs.swagger.Tags {
 		if tag.Name == name {
 			docs.swagger.Tags = append(docs.swagger.Tags[:i], docs.swagger.Tags[i+1:]...)
