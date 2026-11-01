@@ -34,7 +34,7 @@ func Configure() {
 		client, err := mongo.Connect(c, opts)
 		if err != nil {
 			slog.Warn("failed to open", "plugin", plugin, "name", name, "error", err)
-			return
+			continue
 		}
 
 		mongos[name] = client
