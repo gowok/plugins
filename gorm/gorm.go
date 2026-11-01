@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/gowok/fp/maps"
@@ -234,6 +235,19 @@ func FindAllPaginated[T any](ctx context.Context, db *gorm.DB, pagination *web.P
 
 	if pagination.Page > 0 && pagination.PerPage > 0 {
 		query = query.Offset(pagination.Skip()).Limit(pagination.PerPage)
+	}
+
+	sortColumns := make([]string, 0, len(pagination.Sort))
+	for column := range pagination.Sort {
+		sortColumns = append(sortColumns, column)
+	}
+	slices.Sort(sortColumns)
+	for _, column := range sortColumns {
+		direction := strings.ToLower(strings.TrimSpace(pagination.Sort[column]))
+		query = query.Order(clause.OrderByColumn{
+			Column: clause.Column{Name: column},
+			Desc:   direction == "desc",
+		})
 	}
 
 	if err := query.Find(&pagination.Data).Error; err != nil {

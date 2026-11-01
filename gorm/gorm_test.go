@@ -465,6 +465,62 @@ func TestFindAllPaginatedCountsBeforePaging(t *testing.T) {
 	}
 }
 
+func TestFindAllPaginatedAppliesSort(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var pageSQL string
+	if err := db.Callback().Query().After("gorm:query").Register("test:capture_sql", func(tx *gorm.DB) {
+		if strings.Contains(tx.Statement.SQL.String(), "count(*)") {
+			return
+		}
+		pageSQL = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	cases := []struct {
+		name string
+		sort map[string]string
+		want string
+		desc bool
+	}{
+		{"descending", map[string]string{"name": "desc"}, `ORDER BY "name"`, true},
+		{"ascending", map[string]string{"name": "asc"}, `ORDER BY "name"`, false},
+		{"unknown direction falls back to ascending", map[string]string{"name": "sideways"}, `ORDER BY "name"`, false},
+		{"multiple columns sort deterministically", map[string]string{"name": "desc", "code": "asc"}, `ORDER BY "code","name"`, true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			pageSQL = ""
+			pagination := &web.Pagination[configuredKeyModel]{
+				Page:    1,
+				PerPage: 10,
+				Filter:  map[string]any{},
+				Sort:    tc.sort,
+			}
+			if _, err := FindAllPaginated(context.Background(), db, pagination); err != nil {
+				t.Fatalf("find all paginated failed: %v", err)
+			}
+
+			if !strings.Contains(pageSQL, tc.want) {
+				t.Fatalf("page query should be ordered by %q, got: %s", tc.want, pageSQL)
+			}
+
+			if desc := strings.Contains(pageSQL, "DESC"); desc != tc.desc {
+				t.Fatalf("page query descending state should be %v, got: %s", tc.desc, pageSQL)
+			}
+		})
+	}
+}
+
 func TestFindAllPaginatedDefaultsNilPagination(t *testing.T) {
 	db, err := gorm.Open(stubDialector{}, &gorm.Config{
 		DryRun:                 true,
