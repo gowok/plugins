@@ -15,7 +15,7 @@ func C(key interface{}, num float64, digits uint64, param string) (string, error
 func O(key interface{}, num float64, digits uint64, param string) (string, error) {
 	return Get().O(key, num, digits, param)
 }
-func R(key interface{}, num1, num2 float64, digits1, digits2 uint64, param1, param2 string) (string, error) {
+func R(key interface{}, num1 float64, digits1 uint64, num2 float64, digits2 uint64, param1, param2 string) (string, error) {
 	return Get().R(key, num1, digits1, num2, digits2, param1, param2)
 }
 

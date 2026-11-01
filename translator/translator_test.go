@@ -3,9 +3,11 @@ package translator
 import (
 	"testing"
 
+	"github.com/go-playground/locales"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/fr"
 	"github.com/go-playground/locales/id"
+	"github.com/go-playground/locales/ru"
 )
 
 func TestConfigureRegistersAllTranslators(t *testing.T) {
@@ -45,5 +47,29 @@ func TestAddDictionaryUnknownLocaleDoesNotLeakIntoFallback(t *testing.T) {
 
 	if _, err := Get("en").T("leak"); err == nil {
 		t.Fatal("message for unknown locale leaked into fallback dictionary")
+	}
+}
+
+func TestRForwardsRangeArgumentsInOrder(t *testing.T) {
+	Configure(ru.New)()
+
+	tr := Get("ru")
+	for rule, text := range map[locales.PluralRule]string{
+		locales.PluralRuleOne:   "{0}-{1} ONE",
+		locales.PluralRuleFew:   "{0}-{1} FEW",
+		locales.PluralRuleMany:  "{0}-{1} MANY",
+		locales.PluralRuleOther: "{0}-{1} OTHER",
+	} {
+		if err := tr.AddRange("k", text, rule, true); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	got, err := R("k", 1, 0, 1, 0, "a", "b")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "a-b ONE" {
+		t.Fatalf("R() = %q, want %q", got, "a-b ONE")
 	}
 }
