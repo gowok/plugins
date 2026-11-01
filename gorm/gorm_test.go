@@ -261,6 +261,36 @@ func TestFindByIDUsesModelPrimaryKey(t *testing.T) {
 	}
 }
 
+func TestExistsUsesModelPrimaryKey(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Query().After("gorm:query").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if _, err := Exists[configuredKeyModel](db, "42"); err != nil {
+		t.Fatalf("exists failed: %v", err)
+	}
+
+	if !strings.Contains(built, "count(*)") {
+		t.Fatalf("exists should count matching rows, got: %s", built)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("exists should filter by the model primary key, got: %s", built)
+	}
+}
+
 func TestUpdateByIDUsesModelPrimaryKey(t *testing.T) {
 	db, err := gorm.Open(stubDialector{}, &gorm.Config{
 		DryRun:                 true,

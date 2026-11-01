@@ -159,6 +159,13 @@ func FindByID[T any](db *gorm.DB, id any) (T, error) {
 	return dest, err
 }
 
+func Exists[T any](db *gorm.DB, id any) (bool, error) {
+	var dest T
+	var count int64
+	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Count(&count).Error
+	return count > 0, err
+}
+
 func UpdateByID[T any](db *gorm.DB, id any, values any) (T, error) {
 	var dest T
 	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(values).Error
