@@ -352,6 +352,41 @@ func TestUpdateByIDAcceptsStruct(t *testing.T) {
 	}
 }
 
+func TestUpdateByIDReloadsUpdatedRecord(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var updateSQL, reloadSQL string
+	if err := db.Callback().Update().After("gorm:update").Register("test:capture_update_sql", func(tx *gorm.DB) {
+		updateSQL = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register update callback: %v", err)
+	}
+	if err := db.Callback().Query().After("gorm:query").Register("test:capture_reload_sql", func(tx *gorm.DB) {
+		reloadSQL = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register query callback: %v", err)
+	}
+
+	if _, err := UpdateByID[configuredKeyModel](db, "42", map[string]any{"name": "renamed"}); err != nil {
+		t.Fatalf("update by id failed: %v", err)
+	}
+
+	if updateSQL == "" {
+		t.Fatal("update by id should run an update statement")
+	}
+
+	if !strings.Contains(reloadSQL, `"code" =`) {
+		t.Fatalf("update by id should reload the updated record by primary key, got: %s", reloadSQL)
+	}
+}
+
 func TestDeleteByIDIsUnscoped(t *testing.T) {
 	db, err := gorm.Open(stubDialector{}, &gorm.Config{
 		DryRun:                 true,

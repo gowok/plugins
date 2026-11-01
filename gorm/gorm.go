@@ -172,7 +172,11 @@ func Exists[T any](db *gorm.DB, id any) (bool, error) {
 func UpdateByID[T any](db *gorm.DB, id any, values any) (T, error) {
 	var dest T
 	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(values).Error
-	return dest, err
+	if err != nil {
+		return dest, err
+	}
+
+	return FindByID[T](db, id)
 }
 
 func DeleteByID[T any](db *gorm.DB, id any) error {
