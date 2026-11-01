@@ -113,6 +113,11 @@ func (docs *httpDocs) SetBasePath(basePath string) {
 	docs.swagger.BasePath = basePath
 }
 
+func (docs *httpDocs) SetHost(host string) {
+	docs.Host = host
+	docs.swagger.Host = host
+}
+
 func (docs *httpDocs) SetInfo(info spec.InfoProps) {
 	docs.Title = info.Title
 	docs.Version = info.Version

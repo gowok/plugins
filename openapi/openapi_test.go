@@ -147,6 +147,15 @@ func TestHttpDocsSetBasePath(t *testing.T) {
 	should.Equal(t, "/api/v1", docs.swagger.BasePath)
 }
 
+func TestHttpDocsSetHost(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	docs.SetHost("api.example.com")
+
+	should.Equal(t, "api.example.com", docs.Host)
+	should.Equal(t, "api.example.com", docs.swagger.Host)
+}
+
 func TestHttpDocsRemoveTag(t *testing.T) {
 	docs := httpDocsInitialize(t)
 
