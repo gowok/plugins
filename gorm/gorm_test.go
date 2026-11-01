@@ -235,6 +235,33 @@ func TestRestoreClearsDeletedAt(t *testing.T) {
 	}
 }
 
+func TestFindByIDUsesModelPrimaryKey(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Query().After("gorm:query").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	var got configuredKeyModel
+	if err := FindByID(db, &got, "42"); err != nil {
+		t.Fatalf("find by id failed: %v", err)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("find by id should filter by the model primary key, got: %s", built)
+	}
+}
+
 func TestDBNoDefaultWithoutName(t *testing.T) {
 	prev := dbs
 	dbs = dbMap{"default": &gorm.DB{}}

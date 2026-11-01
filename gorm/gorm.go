@@ -153,6 +153,10 @@ func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 	return some.Empty[*gorm.DB]()
 }
 
+func FindByID(db *gorm.DB, dest any, id any) error {
+	return db.Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).First(dest).Error
+}
+
 func SoftDelete(db *gorm.DB, model any, id string) error {
 	return db.Model(model).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(struct {
 		DeletedAt gorm.DeletedAt
