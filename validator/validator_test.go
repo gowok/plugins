@@ -51,6 +51,18 @@ func TestValidateStruct(t *testing.T) {
 	}
 }
 
+func TestValidateStruct_repeatedTranslations(t *testing.T) {
+	input := testUser{Email: "john@mail.com"}
+	opts := WithTranslations(map[string]string{"testUser.Name.required": "{0} must be filled"})
+
+	for i := 0; i < 2; i++ {
+		err := ValidateStruct(input, opts)
+		if msg := err.Error(); !strings.Contains(msg, "must be filled") || strings.Contains(msg, "conflicting") {
+			t.Fatalf("attempt %d: expected custom translation, got %q", i+1, msg)
+		}
+	}
+}
+
 func TestValidateStruct_modifyMutatesInput(t *testing.T) {
 	input := &testUser{Name: "  JOHN  ", Email: "john@mail.com"}
 	err := ValidateStruct(input, WithModify())

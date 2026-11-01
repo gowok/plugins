@@ -113,7 +113,7 @@ func ValidateStruct(input any, optFns ...ValidateStructOptFn) ValidationError {
 		if !strings.Contains(tag, ".") {
 			tag = "*." + tag
 		}
-		err := v.registerTranslationTag(tag, message, false)
+		err := v.registerTranslationTag(tag, message, true)
 		if err != nil {
 			return ValidationError{
 				errorJSON: map[string]string{"*": err.Error()},
