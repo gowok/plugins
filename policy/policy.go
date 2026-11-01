@@ -34,6 +34,9 @@ func NewPolicy(modelStr string, opts ...Option) (*enforcer, error) {
 
 	ee := &enforcer{}
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		opt(ee)
 	}
 

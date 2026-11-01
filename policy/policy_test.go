@@ -46,3 +46,21 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
 		t.Fatalf("custom model is not loaded, got matcher %q", matcher)
 	}
 }
+
+func TestNewPolicySkipsNilOption(t *testing.T) {
+	e, err := NewPolicyRBAC(nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if e == nil || e.Enforcer == nil {
+		t.Fatal("enforcer is not initialized")
+	}
+
+	ok, err := e.Enforce("alice", "data1", "READ")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
+		t.Fatal("enforce without any policy must be false")
+	}
+}
