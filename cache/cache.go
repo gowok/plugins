@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"log/slog"
 	"sync"
 
@@ -65,7 +66,11 @@ func Configure() {
 			}
 
 			if dbC.Driver == "redis" {
-				clientOpt := gowok.Must(redis.ParseURL(dbC.DSN))
+				clientOpt, parseErr := redis.ParseURL(dbC.DSN)
+				if parseErr != nil {
+					return nil, fmt.Errorf("invalid redis dsn for %q: %w", name, parseErr)
+				}
+
 				caches.Store(name, store_redis.NewRedis(redis.NewClient(clientOpt)))
 				return
 			}
