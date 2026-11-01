@@ -97,8 +97,8 @@ func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 
 func SoftDelete(db *gorm.DB, model any, id string) error {
 	return db.Model(model).Where("id = ?", id).Updates(struct {
-		DeletedAt time.Time
+		DeletedAt gorm.DeletedAt
 	}{
-		DeletedAt: time.Now(),
+		DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
 	}).Error
 }
