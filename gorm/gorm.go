@@ -84,12 +84,13 @@ func DB(name ...string) some.Some[*gorm.DB] {
 }
 
 func DBNoDefault(name ...string) some.Some[*gorm.DB] {
-	n := ""
+	n := "default"
 	if len(name) > 0 {
 		n = name[0]
-		if db, ok := dbs[n]; ok {
-			return some.Of(db)
-		}
+	}
+
+	if db, ok := dbs[n]; ok {
+		return some.Of(db)
 	}
 
 	return some.Empty[*gorm.DB]()
