@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -13,11 +14,13 @@ import (
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/async"
+	"github.com/ngamux/ngamux"
 	"github.com/redis/go-redis/v9"
 )
 
 var plugin = "cache"
 var caches = sync.Map{}
+var redisClients = sync.Map{}
 
 // map[string]store.StoreInterface{}
 
@@ -71,18 +74,62 @@ func Configure() {
 					return nil, fmt.Errorf("invalid redis dsn for %q: %w", name, parseErr)
 				}
 
-				caches.Store(name, store_redis.NewRedis(redis.NewClient(clientOpt)))
+				redisClient := redis.NewClient(clientOpt)
+				caches.Store(name, store_redis.NewRedis(redisClient))
+				redisClients.Store(name, redisClient)
 				return
 			}
 
-			slog.Warn("unknown", "driver", dbC.Driver, "plugin", plugin)
-			return
+			return nil, fmt.Errorf("unknown driver %q for %q", dbC.Driver, name)
 		})
 	}
 
 	_, err = async.All(tasks...)
 	if err != nil {
 		slog.Error(err.Error(), "plugin", plugin)
+	}
+
+	registerHealth(config)
+}
+
+func registerHealth(config Configs) {
+	for name, dbC := range config {
+		if !dbC.Enabled {
+			continue
+		}
+
+		if _, ok := caches.Load(name); !ok {
+			continue
+		}
+
+		healthName := "cache"
+		if name != "default" {
+			healthName += "-" + name
+		}
+
+		if dbC.Driver != "redis" {
+			gowok.Health.Add(healthName, func() any {
+				return ngamux.Map{"status": "UP"}
+			})
+			continue
+		}
+
+		clientAny, ok := redisClients.Load(name)
+		if !ok {
+			continue
+		}
+
+		redisClient, ok := clientAny.(*redis.Client)
+		if !ok {
+			continue
+		}
+
+		gowok.Health.Add(healthName, func() any {
+			if err := redisClient.Ping(context.Background()).Err(); err != nil {
+				return ngamux.Map{"status": "DOWN"}
+			}
+			return ngamux.Map{"status": "UP"}
+		})
 	}
 }
 
