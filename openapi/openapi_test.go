@@ -161,6 +161,16 @@ func TestHttpDocsRemoveTag(t *testing.T) {
 	should.Equal(t, 1, len(docs.swagger.Tags))
 }
 
+func TestHttpDocsHasTag(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	should.Equal(t, false, docs.HasTag("users"))
+
+	docs.AddTag("users", "User management")
+	should.Equal(t, true, docs.HasTag("users"))
+	should.Equal(t, false, docs.HasTag("missing"))
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }

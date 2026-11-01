@@ -143,6 +143,15 @@ func (docs *httpDocs) DeleteTag(name string) bool {
 	return false
 }
 
+func (docs *httpDocs) HasTag(name string) bool {
+	for _, tag := range docs.swagger.Tags {
+		if tag.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
 type entry interface {
 	Method() string
 	Path() string
