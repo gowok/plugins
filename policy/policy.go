@@ -3,6 +3,7 @@ package policy
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
+	"github.com/gowok/fp/slices"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
 )
@@ -102,16 +103,20 @@ var policy = singleton.New(func() *enforcer {
 })
 
 func Configure(model string, opts ...Option) func() {
-	opts = append(opts, withAdapter())
+	options := slices.Map(opts, func(data Option) Option {
+		return data
+	})
+	options = append(options, withAdapter())
+
 	return func() {
 		p := func() *enforcer {
 			switch model {
 			case "rbac", "RBAC":
-				return gowok.Must(NewPolicyRBAC(opts...))
+				return gowok.Must(NewPolicyRBAC(options...))
 			case "abac", "ABAC":
-				return gowok.Must(NewPolicyABAC(opts...))
+				return gowok.Must(NewPolicyABAC(options...))
 			}
-			return gowok.Must(NewPolicy(model, opts...))
+			return gowok.Must(NewPolicy(model, options...))
 		}()
 		policy(p)
 	}

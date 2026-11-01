@@ -5,6 +5,17 @@ import (
 	"testing"
 )
 
+func TestConfigureDoesNotWriteIntoCallerOptions(t *testing.T) {
+	opts := make([]Option, 1, 2)
+	opts[0] = func(*enforcer) {}
+
+	Configure("rbac", opts...)
+
+	if spare := opts[:cap(opts)]; spare[1] != nil {
+		t.Fatalf("Configure wrote into the caller's slice backing array: %v", spare[1])
+	}
+}
+
 func TestConfigureABACUsesABACModel(t *testing.T) {
 	ConfigureABAC()()
 
