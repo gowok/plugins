@@ -21,6 +21,7 @@ var dbs = make(dbMap)
 func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func() {
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
 	return func() {
+		closeConnections()
 		dbs = make(dbMap)
 
 		var config Configs
@@ -60,6 +61,23 @@ func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func() {
 				}
 				return ngamux.Map{"status": "UP"}
 			})
+		}
+	}
+}
+
+func closeConnections() {
+	for name, db := range dbs {
+		if db == nil || db.Config == nil {
+			continue
+		}
+
+		sqlDB, err := db.DB()
+		if err != nil || sqlDB == nil {
+			continue
+		}
+
+		if err := sqlDB.Close(); err != nil {
+			slog.Warn("failed to close", "name", name, "plugin", plugin, "error", err)
 		}
 	}
 }
