@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/lib/v4/cache"
@@ -21,6 +22,10 @@ import (
 var plugin = "cache"
 var caches = sync.Map{}
 var redisClients = sync.Map{}
+
+// healthCheckTimeout bounds the Redis probe so an unhealthy server is reported
+// as DOWN instead of blocking the health endpoint indefinitely.
+const healthCheckTimeout = 5 * time.Second
 
 // map[string]store.StoreInterface{}
 
@@ -130,7 +135,10 @@ func registerHealth(config Configs) {
 		}
 
 		gowok.Health.Add(healthName, func() any {
-			if err := redisClient.Ping(context.Background()).Err(); err != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
+			defer cancel()
+
+			if err := redisClient.Ping(ctx).Err(); err != nil {
 				return ngamux.Map{"status": "DOWN"}
 			}
 			return ngamux.Map{"status": "UP"}
