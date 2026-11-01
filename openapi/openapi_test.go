@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/go-openapi/spec"
@@ -86,6 +87,13 @@ func TestHttpDocsAddReusedForMultipleRoutes(t *testing.T) {
 
 	// Registering POST /b must not leak the earlier GET operation into /b.
 	should.Nil(t, docs.swagger.Paths.Paths["/b"].Get)
+}
+
+func TestSpecSchemaOfReflectTypeInt(t *testing.T) {
+	schema := specSchemaOfReflectType(reflect.TypeOf(int(0)))
+	should.Equal(t, 1, len(schema.Type))
+	should.Equal(t, "integer", string(schema.Type[0]))
+	should.Equal(t, "int64", schema.Format)
 }
 
 func TestHttpDocsAddDefinition(t *testing.T) {

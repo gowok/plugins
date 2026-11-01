@@ -161,6 +161,8 @@ func specSchemaOfReflectType(t reflect.Type) *spec.Schema {
 	switch t.Kind() {
 	case reflect.String:
 		fieldSchema = spec.StringProperty()
+	case reflect.Int:
+		fieldSchema = spec.Int64Property()
 	case reflect.Int64:
 		fieldSchema = spec.Int64Property()
 	case reflect.Int32:
