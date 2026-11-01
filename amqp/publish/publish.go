@@ -17,7 +17,9 @@ type publishing struct {
 func New(message amqp.Publishing, opts ...func(*publishing)) (*amqp.Publishing, error) {
 	p := publishing{}
 	for _, opt := range opts {
-		opt(&p)
+		if opt != nil {
+			opt(&p)
+		}
 	}
 
 	if p.Channel == nil {
