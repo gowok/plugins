@@ -66,10 +66,10 @@ func Configure(onError func(error)) func() {
 		c.NotifyClose(closeChan)
 
 		go func() {
-			err = <-closeChan
-			if err != nil {
-				onError(err)
-				slog.Warn("connection closed, reconnecting", "error", err)
+			closeErr := <-closeChan
+			if closeErr != nil {
+				onError(closeErr)
+				slog.Warn("connection closed", "error", closeErr)
 			}
 
 			c.Close()
