@@ -65,5 +65,12 @@ openapi.Docs().Add("create new product", func(operation *spec.Operation) {
 })(route{"POST", "/products"})
 ```
 
+## Remove Tag
+Remove a previously added tag by name.
+```go
+removed := openapi.Docs().RemoveTag("users") // reports whether the tag existed
+_ = removed
+```
+
 ## Access
 It will accessible at `/docs`.

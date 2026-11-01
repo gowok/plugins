@@ -147,6 +147,20 @@ func TestHttpDocsSetBasePath(t *testing.T) {
 	should.Equal(t, "/api/v1", docs.swagger.BasePath)
 }
 
+func TestHttpDocsRemoveTag(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	docs.AddTag("users", "User management")
+	docs.AddTag("orders", "Order management")
+
+	should.Equal(t, true, docs.RemoveTag("users"))
+	should.Equal(t, 1, len(docs.swagger.Tags))
+	should.Equal(t, "orders", docs.swagger.Tags[0].Name)
+
+	should.Equal(t, false, docs.RemoveTag("missing"))
+	should.Equal(t, 1, len(docs.swagger.Tags))
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }
