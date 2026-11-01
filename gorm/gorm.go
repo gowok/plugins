@@ -9,6 +9,7 @@ import (
 	"github.com/gowok/gowok"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 )
 
@@ -117,7 +118,7 @@ func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 }
 
 func SoftDelete(db *gorm.DB, model any, id string) error {
-	return db.Model(model).Where("id = ?", id).Updates(struct {
+	return db.Model(model).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(struct {
 		DeletedAt gorm.DeletedAt
 	}{
 		DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
