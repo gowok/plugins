@@ -54,6 +54,10 @@ func newValidationError(errs govalidator.ValidationErrors, translations ut.Trans
 }
 
 func (err ValidationError) Error() string {
+	if len(err.errorJSON) == 0 {
+		return err.errorMessage
+	}
+
 	errorMessage := ""
 	for field, msg := range err.errorJSON {
 		errorMessage += field + ": " + msg + "; "
@@ -148,7 +152,7 @@ func ValidateJSON[T any](r *http.Request, schema T, optFns ...ValidateStructOptF
 		}
 	}
 
-	errs := ValidateStruct(schema, optFns...)
+	errs := ValidateStruct(&schema, optFns...)
 	if len(errs.Error()) > 0 {
 		return new(T), &errs
 	}

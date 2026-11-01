@@ -5,6 +5,9 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 )
 
 type testUser struct {
@@ -138,5 +141,37 @@ func TestModifiers(t *testing.T) {
 	}
 	if input.Name != "john" {
 		t.Fatalf("expected %q, got %q", "john", input.Name)
+	}
+}
+
+func TestConfigure_appliesTranslator(t *testing.T) {
+	orig := *vv()
+	defer func() { vv(orig) }()
+
+	other, ok := ut.New(en.New(), en.New()).GetTranslator("en")
+	if !ok {
+		t.Fatal("failed to create translator")
+	}
+
+	Configure(WithTranslator(other))()
+
+	if got := (*vv()).trans; got != other {
+		t.Fatal("expected Configure to apply the configured translator, but it was discarded")
+	}
+}
+
+func TestValidationError_nonTranslatorMessage(t *testing.T) {
+	err := ValidateStruct(42, WithModify())
+	if err.Error() == "" {
+		t.Fatal("expected modifier error to surface via Error(), got empty message")
+	}
+}
+
+func TestValidateJSON_modifierError(t *testing.T) {
+	r := httptest.NewRequest("POST", "/", strings.NewReader("42"))
+	r.Header.Set("Content-Type", "application/json")
+
+	if _, err := ValidateJSON(r, 0, WithModify()); err == nil {
+		t.Fatal("expected modifier error to be reported, got nil")
 	}
 }
