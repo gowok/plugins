@@ -21,6 +21,8 @@ var dbs = make(dbMap)
 func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func() {
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
 	return func() {
+		dbs = make(dbMap)
+
 		var config Configs
 		err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "gorm"), &config)
 		if err != nil {
