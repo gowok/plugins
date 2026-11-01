@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"math/rand"
+	"time"
 
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
@@ -90,6 +91,8 @@ func (t Table) Validate() error {
 	return nil
 }
 
+const healthTimeout = 5 * time.Second
+
 func healthFunc(c *amqp.Connection) func() any {
 	return func() any {
 		status := ngamux.Map{"status": "DOWN"}
@@ -137,8 +140,12 @@ func healthFunc(c *amqp.Connection) func() any {
 			return status
 		}
 
-		d := <-msgs
-		if string(d.Body) != body {
+		select {
+		case d, ok := <-msgs:
+			if !ok || string(d.Body) != body {
+				return status
+			}
+		case <-time.After(healthTimeout):
 			return status
 		}
 
