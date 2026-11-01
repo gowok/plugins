@@ -124,3 +124,9 @@ func SoftDelete(db *gorm.DB, model any, id string) error {
 		DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
 	}).Error
 }
+
+func Restore(db *gorm.DB, model any, id string) error {
+	return db.Model(model).Unscoped().Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(map[string]any{
+		"deleted_at": nil,
+	}).Error
+}

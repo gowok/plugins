@@ -129,6 +129,42 @@ func TestSoftDeleteUsesModelPrimaryKey(t *testing.T) {
 	}
 }
 
+func TestRestoreClearsDeletedAt(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	var vars []any
+	if err := db.Callback().Update().After("gorm:update").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+		vars = tx.Statement.Vars
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if err := Restore(db, &configuredKeyModel{}, "42"); err != nil {
+		t.Fatalf("restore failed: %v", err)
+	}
+
+	if strings.Contains(built, "IS NULL") {
+		t.Fatalf("restore must be unscoped so deleted rows are matched, got: %s", built)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("restore should filter by the model primary key, got: %s", built)
+	}
+
+	if len(vars) == 0 || vars[0] != nil {
+		t.Fatalf("restore should null out deleted_at first, got vars: %v", vars)
+	}
+}
+
 func TestDBNoDefaultWithoutName(t *testing.T) {
 	prev := dbs
 	dbs = dbMap{"default": &gorm.DB{}}
