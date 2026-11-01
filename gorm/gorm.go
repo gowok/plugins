@@ -162,10 +162,23 @@ func FindByID[T any](db *gorm.DB, id any) (T, error) {
 	return dest, err
 }
 
-func Exists[T any](db *gorm.DB, id any) (bool, error) {
-	var dest T
+func Count[T any](db *gorm.DB, q ...func(*gorm.DB) *gorm.DB) (int64, error) {
+	query := db.Model(new(T))
+	for _, filter := range q {
+		if filter != nil {
+			query = filter(query)
+		}
+	}
+
 	var count int64
-	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Count(&count).Error
+	err := query.Count(&count).Error
+	return count, err
+}
+
+func Exists[T any](db *gorm.DB, id any) (bool, error) {
+	count, err := Count[T](db, func(d *gorm.DB) *gorm.DB {
+		return d.Where(clause.Eq{Column: clause.PrimaryColumn, Value: id})
+	})
 	return count > 0, err
 }
 

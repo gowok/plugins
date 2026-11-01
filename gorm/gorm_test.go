@@ -262,6 +262,47 @@ func TestFindByIDUsesModelPrimaryKey(t *testing.T) {
 	}
 }
 
+func TestCountAppliesFilters(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Query().After("gorm:query").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if _, err := Count[configuredKeyModel](db); err != nil {
+		t.Fatalf("count failed: %v", err)
+	}
+
+	if !strings.Contains(built, "count(*)") {
+		t.Fatalf("count should build a count query, got: %s", built)
+	}
+
+	if !strings.Contains(built, "deleted_at") {
+		t.Fatalf("count should keep the model's soft delete scope, got: %s", built)
+	}
+
+	built = ""
+	if _, err := Count[configuredKeyModel](db, nil, func(query *gorm.DB) *gorm.DB {
+		return query.Where(clause.Eq{Column: "name", Value: "ferris"})
+	}); err != nil {
+		t.Fatalf("count with filters failed: %v", err)
+	}
+
+	if !strings.Contains(built, `"name" =`) {
+		t.Fatalf("count should apply the given filters, got: %s", built)
+	}
+}
+
 func TestExistsUsesModelPrimaryKey(t *testing.T) {
 	db, err := gorm.Open(stubDialector{}, &gorm.Config{
 		DryRun:                 true,
