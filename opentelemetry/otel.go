@@ -72,10 +72,6 @@ func Configure() {
 				slog.Error("failed to start", "metric", configTrace.Driver, "required", "endpoint")
 				return
 			}
-			if err := runtimemetrics.Start(); err != nil {
-				slog.Error("failed to start", "metric", configTrace.Driver, "error", err)
-				return
-			}
 
 			exporter, err := prometheus.New()
 			if err != nil {
@@ -84,6 +80,11 @@ func Configure() {
 			}
 			provider := sdkmetric.NewMeterProvider(sdkmetric.WithReader(exporter))
 			otel.SetMeterProvider(provider)
+
+			if err := runtimemetrics.Start(); err != nil {
+				slog.Error("failed to start", "metric", configTrace.Driver, "error", err)
+				return
+			}
 
 			gowok.Web.Get(configTrace.Endpoint, promhttp.Handler().ServeHTTP)
 		}
