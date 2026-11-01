@@ -185,3 +185,22 @@ func TestHttpDocsHasDefinition(t *testing.T) {
 	should.Equal(t, true, docs.HasDefinition("user"))
 	should.Equal(t, false, docs.HasDefinition("missing"))
 }
+
+func TestHttpDocsSetInfo(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	docs.SetInfo(spec.InfoProps{
+		Title:          "Shop API",
+		Version:        "v2",
+		Description:    "Storefront endpoints",
+		TermsOfService: "https://example.com/terms",
+	})
+
+	should.Equal(t, "Shop API", docs.Title)
+	should.Equal(t, "v2", docs.Version)
+	should.Equal(t, "Storefront endpoints", docs.Description)
+	should.Equal(t, "Shop API", docs.swagger.Info.Title)
+	should.Equal(t, "v2", docs.swagger.Info.Version)
+	should.Equal(t, "Storefront endpoints", docs.swagger.Info.Description)
+	should.Equal(t, "https://example.com/terms", docs.swagger.Info.TermsOfService)
+}

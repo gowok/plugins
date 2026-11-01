@@ -113,6 +113,17 @@ func (docs *httpDocs) SetBasePath(basePath string) {
 	docs.swagger.BasePath = basePath
 }
 
+func (docs *httpDocs) SetInfo(info spec.InfoProps) {
+	docs.Title = info.Title
+	docs.Version = info.Version
+	docs.Description = info.Description
+
+	if docs.swagger.Info == nil {
+		docs.swagger.Info = &spec.Info{}
+	}
+	docs.swagger.Info.InfoProps = info
+}
+
 func (docs *httpDocs) AddTag(name, description string) {
 	docs.swagger.Tags = append(docs.swagger.Tags, spec.Tag{
 		TagProps: spec.TagProps{
