@@ -75,6 +75,11 @@ func Configure() {
 				}
 
 				redisClient := redis.NewClient(clientOpt)
+				if pingErr := redisClient.Ping(context.Background()).Err(); pingErr != nil {
+					_ = redisClient.Close()
+					return nil, fmt.Errorf("redis unreachable for %q: %w", name, pingErr)
+				}
+
 				caches.Store(name, store_redis.NewRedis(redisClient))
 				redisClients.Store(name, redisClient)
 				return
@@ -142,11 +147,12 @@ func Cache[T any](name ...string) some.Some[*C[T]] {
 				c := cache.New[T](db)
 				return some.Of(&C[T]{c})
 			}
+			slog.Warn("cache backend has unexpected type", "name", n, "type", fmt.Sprintf("%T", dbAny), "plugin", plugin)
 		}
 	}
 
 	if n != "" {
-		slog.Info("using default connection", "not_found", n)
+		slog.Warn("cache not found, falling back to default", "not_found", n, "plugin", plugin)
 	}
 
 	if dbAny, ok := caches.Load("default"); ok {
@@ -154,7 +160,9 @@ func Cache[T any](name ...string) some.Some[*C[T]] {
 			c := cache.New[T](db)
 			return some.Of(&C[T]{c})
 		}
+		slog.Warn("cache backend has unexpected type", "name", "default", "type", fmt.Sprintf("%T", dbAny), "plugin", plugin)
 	}
 
+	slog.Warn("no cache available", "name", n, "plugin", plugin)
 	return some.Empty[*C[T]]()
 }
