@@ -106,7 +106,7 @@ func Configure(model string, opts ...Option) func() {
 		case "rbac", "RBAC":
 			p = gowok.Must(NewPolicyRBAC(opts...))
 		case "abac", "ABAC":
-			p = gowok.Must(NewPolicyRBAC(opts...))
+			p = gowok.Must(NewPolicyABAC(opts...))
 		}
 		policy(p)
 	}
