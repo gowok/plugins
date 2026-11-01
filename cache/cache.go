@@ -24,6 +24,22 @@ type C[T any] struct {
 	*cache.Cache[T]
 }
 
+func estimateCost(value any) int64 {
+	switch v := value.(type) {
+	case string:
+		if len(v) == 0 {
+			return 1
+		}
+		return int64(len(v))
+	case []byte:
+		if len(v) == 0 {
+			return 1
+		}
+		return int64(len(v))
+	}
+	return 1
+}
+
 func Configure() {
 	config, err := ConfigFromProject()
 	if err != nil {
@@ -42,6 +58,7 @@ func Configure() {
 				clientOpt := gowok.Must(ristretto.NewCache(&ristretto.Config{NumCounters: 1e7,
 					MaxCost:     1 << 30,
 					BufferItems: 64,
+					Cost:        estimateCost,
 				}))
 				caches.Store(name, store_memory.NewRistretto(clientOpt, store.WithSynchronousSet()))
 				return
