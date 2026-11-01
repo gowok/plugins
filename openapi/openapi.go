@@ -272,6 +272,11 @@ func (docs *httpDocs) AddDefinition(schema any) spec.Ref {
 	return spec.Ref{Ref: jsonreference.MustCreateRef("#/definitions/" + t.Name())}
 }
 
+func (docs *httpDocs) HasDefinition(name string) bool {
+	_, ok := docs.swagger.Definitions[name]
+	return ok
+}
+
 func (docs httpDocs) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	ngamux.Res(rw).JSON(docs.swagger)
 }

@@ -174,3 +174,14 @@ func TestHttpDocsAddDefinition(t *testing.T) {
 	ref = docs.AddDefinition(userT{})
 	should.Equal(t, ref.Ref.String(), "#/definitions/userT")
 }
+
+func TestHttpDocsHasDefinition(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	type user struct{ Email string }
+	should.Equal(t, false, docs.HasDefinition("user"))
+
+	docs.AddDefinition(user{})
+	should.Equal(t, true, docs.HasDefinition("user"))
+	should.Equal(t, false, docs.HasDefinition("missing"))
+}
