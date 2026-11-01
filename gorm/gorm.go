@@ -1,6 +1,7 @@
 package gorm
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -9,6 +10,7 @@ import (
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/web"
 	"github.com/ngamux/ngamux"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -191,4 +193,52 @@ func Restore[T any](db *gorm.DB, id string) error {
 	return db.Model(dest).Unscoped().Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(map[string]any{
 		"deleted_at": nil,
 	}).Error
+}
+
+func FindAllPaginated[T any](ctx context.Context, db *gorm.DB, pagination *web.Pagination[T], q ...func(*gorm.DB) *gorm.DB) (*web.Pagination[T], error) {
+	if pagination == nil {
+		pagination = &web.Pagination[T]{
+			Page:    1,
+			PerPage: 10,
+			Filter:  map[string]any{},
+			Sort:    map[string]string{},
+			Data:    make([]T, 0),
+		}
+	}
+
+	query := db.WithContext(ctx)
+	columns := make([]string, 0, len(pagination.Filter))
+	for column := range pagination.Filter {
+		columns = append(columns, column)
+	}
+	slices.Sort(columns)
+	for _, column := range columns {
+		value := pagination.Filter[column]
+		if value == nil {
+			continue
+		}
+		query = query.Where(clause.Eq{Column: column, Value: value})
+	}
+
+	for _, filter := range q {
+		if filter != nil {
+			query = filter(query)
+		}
+	}
+
+	var count int64
+	if err := query.Session(&gorm.Session{}).Model(new(T)).Count(&count).Error; err != nil {
+		return nil, err
+	}
+	pagination.TotalRecord = int(count)
+
+	if pagination.Page > 0 && pagination.PerPage > 0 {
+		query = query.Offset(pagination.Skip()).Limit(pagination.PerPage)
+	}
+
+	if err := query.Find(&pagination.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return pagination, nil
 }
