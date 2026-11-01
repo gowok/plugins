@@ -86,8 +86,11 @@ func Add(key, text string, override bool) {
 }
 
 func AddDictionary(name string, dict map[string]string) {
-	t := Get(name)
+	t, ok := translator.GetTranslator(name)
+	if !ok {
+		return
+	}
 	for k, tt := range dict {
-		t.Add(k, tt, false)
+		_ = t.Add(k, tt, false)
 	}
 }
