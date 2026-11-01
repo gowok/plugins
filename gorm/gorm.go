@@ -153,20 +153,30 @@ func DBNoDefault(name ...string) some.Some[*gorm.DB] {
 	return some.Empty[*gorm.DB]()
 }
 
-func FindByID(db *gorm.DB, dest any, id any) error {
-	return db.Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).First(dest).Error
+func FindByID[T any](db *gorm.DB, id any) (T, error) {
+	var dest T
+	err := db.Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).First(&dest).Error
+	return dest, err
 }
 
-func SoftDelete(db *gorm.DB, model any, id string) error {
-	return db.Model(model).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(struct {
+func UpdateByID[T any](db *gorm.DB, id any, values any) (T, error) {
+	var dest T
+	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(values).Error
+	return dest, err
+}
+
+func SoftDelete[T any](db *gorm.DB, id string) error {
+	var dest T
+	return db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(struct {
 		DeletedAt gorm.DeletedAt
 	}{
 		DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
 	}).Error
 }
 
-func Restore(db *gorm.DB, model any, id string) error {
-	return db.Model(model).Unscoped().Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(map[string]any{
+func Restore[T any](db *gorm.DB, id string) error {
+	var dest T
+	return db.Model(dest).Unscoped().Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(map[string]any{
 		"deleted_at": nil,
 	}).Error
 }

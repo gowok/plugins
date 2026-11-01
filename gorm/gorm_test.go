@@ -190,7 +190,7 @@ func TestSoftDeleteUsesModelPrimaryKey(t *testing.T) {
 		t.Fatalf("failed to register callback: %v", err)
 	}
 
-	if err := SoftDelete(db, &configuredKeyModel{}, "42"); err != nil {
+	if err := SoftDelete[configuredKeyModel](db, "42"); err != nil {
 		t.Fatalf("soft delete failed: %v", err)
 	}
 
@@ -218,7 +218,7 @@ func TestRestoreClearsDeletedAt(t *testing.T) {
 		t.Fatalf("failed to register callback: %v", err)
 	}
 
-	if err := Restore(db, &configuredKeyModel{}, "42"); err != nil {
+	if err := Restore[configuredKeyModel](db, "42"); err != nil {
 		t.Fatalf("restore failed: %v", err)
 	}
 
@@ -252,13 +252,72 @@ func TestFindByIDUsesModelPrimaryKey(t *testing.T) {
 		t.Fatalf("failed to register callback: %v", err)
 	}
 
-	var got configuredKeyModel
-	if err := FindByID(db, &got, "42"); err != nil {
+	if _, err := FindByID[configuredKeyModel](db, "42"); err != nil {
 		t.Fatalf("find by id failed: %v", err)
 	}
 
 	if !strings.Contains(built, `"code" =`) {
 		t.Fatalf("find by id should filter by the model primary key, got: %s", built)
+	}
+}
+
+func TestUpdateByIDUsesModelPrimaryKey(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Update().After("gorm:update").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if _, err := UpdateByID[configuredKeyModel](db, "42", map[string]any{"name": "renamed"}); err != nil {
+		t.Fatalf("update by id failed: %v", err)
+	}
+
+	if !strings.Contains(built, `"name"=`) && !strings.Contains(built, `"name" =`) {
+		t.Fatalf("update by id should set the requested column, got: %s", built)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("update by id should filter by the model primary key, got: %s", built)
+	}
+}
+
+func TestUpdateByIDAcceptsStruct(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Update().After("gorm:update").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	if _, err := UpdateByID[configuredKeyModel](db, "42", configuredKeyModel{Name: "renamed"}); err != nil {
+		t.Fatalf("update by id failed: %v", err)
+	}
+
+	if !strings.Contains(built, `"name"=`) && !strings.Contains(built, `"name" =`) {
+		t.Fatalf("update by id should set the requested column, got: %s", built)
+	}
+
+	if !strings.Contains(built, `"code" =`) {
+		t.Fatalf("update by id should filter by the model primary key, got: %s", built)
 	}
 }
 
