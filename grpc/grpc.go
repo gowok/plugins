@@ -25,7 +25,8 @@ func Configure(services ...Service) func() {
 	return func() {
 		config, err := getConfig()
 		if err != nil {
-			panic("grpc: failed to start: " + err.Error())
+			slog.Warn("failed to start", "error", err)
+			return
 		}
 
 		if !config.Enabled {
