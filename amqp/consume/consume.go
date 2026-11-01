@@ -19,7 +19,8 @@ func Consume(opts ...func(*consuming)) (<-chan amqp.Delivery, error) {
 		opt(&c)
 	}
 
-	if c.Channel == nil {
+	ownsChannel := c.Channel == nil
+	if ownsChannel {
 		ch, err := channel.New()
 		if err != nil {
 			return nil, err
@@ -37,6 +38,9 @@ func Consume(opts ...func(*consuming)) (<-chan amqp.Delivery, error) {
 		amqp.Table(c.Args),
 	)
 	if err != nil {
+		if ownsChannel {
+			c.Channel.Close()
+		}
 		return nil, err
 	}
 

@@ -97,6 +97,8 @@ func healthFunc(c *amqp.Connection) func() any {
 		if err != nil {
 			return status
 		}
+		defer ch.Close()
+
 		q, err := ch.QueueDeclare(
 			"",
 			false,
@@ -108,10 +110,7 @@ func healthFunc(c *amqp.Connection) func() any {
 		if err != nil {
 			return status
 		}
-		defer func() {
-			ch.QueueDelete(q.Name, false, false, true)
-			ch.Close()
-		}()
+		defer ch.QueueDelete(q.Name, false, false, true)
 		body := fmt.Sprintf("%d", rand.Intn(100))
 		err = ch.Publish(
 			"",
