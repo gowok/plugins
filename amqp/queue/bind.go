@@ -16,7 +16,9 @@ type bind struct {
 func Bind(queue, exchange string, opts ...func(*bind)) error {
 	q := bind{Name: queue, Exchange: exchange}
 	for _, opt := range opts {
-		opt(&q)
+		if opt != nil {
+			opt(&q)
+		}
 	}
 
 	if q.Channel == nil {
