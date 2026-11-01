@@ -23,6 +23,7 @@ func main() {
 amqp:
   enabled: <bool>
   dsn: <string>
+  heartbeat: <duration> # optional; e.g. 15s
 ```
 
 ## Health Check

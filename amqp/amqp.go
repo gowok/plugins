@@ -53,7 +53,7 @@ func Configure(onError func(error)) func() {
 			return
 		}
 
-		c, err := amqp.Dial(config.DSN)
+		c, err := amqp.DialConfig(config.DSN, amqp.Config{Heartbeat: config.Heartbeat})
 		if err != nil {
 			onError(err)
 			slog.Warn("failed to connect", "error", err)
