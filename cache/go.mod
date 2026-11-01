@@ -9,8 +9,8 @@ require (
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/gowok/fp v0.2.2
 	github.com/gowok/gowok v0.4.36
+	github.com/gowok/plugins/redis v0.0.1
 	github.com/ngamux/ngamux v1.7.52
-	github.com/redis/go-redis/v9 v9.13.0
 )
 
 require (
@@ -23,7 +23,6 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/ngamux/middleware v0.0.12 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
@@ -32,6 +31,7 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/redis/go-redis/v9 v9.13.0 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	golang.org/x/crypto v0.47.0 // indirect

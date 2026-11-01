@@ -1,11 +1,9 @@
 package cache
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"sync"
-	"time"
 
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/lib/v4/cache"
@@ -15,14 +13,11 @@ import (
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/async"
+	plugin_redis "github.com/gowok/plugins/redis"
 	"github.com/ngamux/ngamux"
-	"github.com/redis/go-redis/v9"
 )
 
 var caches = sync.Map{}
-var redisClients = sync.Map{}
-
-const healthCheckTimeout = 5 * time.Second
 
 func estimateCost(value any) int64 {
 	switch v := value.(type) {
@@ -65,19 +60,13 @@ func Configure() {
 			}
 
 			if dbC.Driver == "redis" {
-				clientOpt, parseErr := redis.ParseURL(dbC.DSN)
-				if parseErr != nil {
-					return nil, fmt.Errorf("invalid redis dsn for %q: %w", name, parseErr)
+				connName := dbC.ConnectionName(name)
+				client, ok := plugin_redis.Client(connName).Get()
+				if !ok {
+					return nil, fmt.Errorf("redis connection %q not configured in redis plugin", connName)
 				}
 
-				redisClient := redis.NewClient(clientOpt)
-				if pingErr := redisClient.Ping(context.Background()).Err(); pingErr != nil {
-					_ = redisClient.Close()
-					return nil, fmt.Errorf("redis unreachable for %q: %w", name, pingErr)
-				}
-
-				caches.Store(name, store_redis.NewRedis(redisClient))
-				redisClients.Store(name, redisClient)
+				caches.Store(name, store_redis.NewRedis(client))
 				return
 			}
 
@@ -115,21 +104,8 @@ func registerHealth(config Configs) {
 			continue
 		}
 
-		clientAny, ok := redisClients.Load(name)
-		if !ok {
-			continue
-		}
-
-		redisClient, ok := clientAny.(*redis.Client)
-		if !ok {
-			continue
-		}
-
 		gowok.Health.Add(healthName, func() any {
-			ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
-			defer cancel()
-
-			if err := redisClient.Ping(ctx).Err(); err != nil {
+			if err := plugin_redis.Ping(name); err != nil {
 				return ngamux.Map{"status": "DOWN"}
 			}
 			return ngamux.Map{"status": "UP"}

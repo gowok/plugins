@@ -10,7 +10,15 @@ import (
 type Config struct {
 	Driver  string
 	DSN     string
+	Name    string
 	Enabled bool
+}
+
+func (c Config) ConnectionName(fallback string) string {
+	if c.Name != "" {
+		return c.Name
+	}
+	return fallback
 }
 
 type Configs map[string]Config

@@ -14,17 +14,26 @@ go get github.com/gowok/plugins/cache
 ```go
 func main() {
   gowok.Get().
-    Configures(cache.Configure).
+    Configures(
+      redis.Configure,
+      cache.Configure,
+    ).
     Run()
 }
 ```
 
 ```yaml
+redis:
+  default:
+    enabled: true
+    dsn: redis://localhost:6379/0
+
 cache:
   default:
     enabled: <bool>
-    driver: <string>
-    dsn: <string>
+    driver: <string> # "memory" or "redis"
+    name: <string>   # redis connection to use, defaults to the cache entry name
+    dsn: <string>    # placeholder for future use
 ```
 
 ## Health Check
