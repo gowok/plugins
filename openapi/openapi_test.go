@@ -112,6 +112,20 @@ func TestSpecSchemaOfStructSkipsIgnoredField(t *testing.T) {
 	should.Equal(t, true, ok)
 }
 
+func TestSpecSchemaOfStructEmptyJSONName(t *testing.T) {
+	type user struct {
+		Name  string
+		Email string `json:",omitempty"`
+	}
+
+	schema := specSchemaOfStruct(user{})
+	should.Equal(t, 2, len(schema.Properties))
+	_, ok := schema.Properties[""]
+	should.Equal(t, false, ok)
+	_, ok = schema.Properties["Email"]
+	should.Equal(t, true, ok)
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }
