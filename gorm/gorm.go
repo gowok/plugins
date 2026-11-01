@@ -83,6 +83,11 @@ func closeConnections() {
 	}
 }
 
+func Close() {
+	closeConnections()
+	dbs = make(dbMap)
+}
+
 func DB(name ...string) some.Some[*gorm.DB] {
 	n := "default"
 	if len(name) > 0 {

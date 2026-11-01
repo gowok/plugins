@@ -81,6 +81,30 @@ func TestConfigureClosesConnectionsFromPreviousConfig(t *testing.T) {
 	}
 }
 
+func TestCloseDropsConnections(t *testing.T) {
+	sqlDB := sql.OpenDB(stubConnector{})
+	if err := sqlDB.Ping(); err != nil {
+		t.Fatalf("failed to ping test database: %v", err)
+	}
+	t.Cleanup(func() { _ = sqlDB.Close() })
+
+	prevDBs := dbs
+	dbs = dbMap{"stale": {Config: &gorm.Config{ConnPool: sqlDB}}}
+	t.Cleanup(func() { dbs = prevDBs })
+
+	Close()
+
+	if err := sqlDB.Ping(); err == nil {
+		t.Fatal("Close should close the configured connection")
+	}
+
+	if DBNoDefault("stale").IsPresent() {
+		t.Fatal("Close should forget the configured connection")
+	}
+
+	Close()
+}
+
 type stubDialector struct{}
 
 func (stubDialector) Name() string { return "stub" }
