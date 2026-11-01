@@ -15,10 +15,12 @@ type Config struct {
 
 type Configs map[string]Config
 
-func ConfigFromMap(configMap map[string]any) Configs {
+func ConfigFromMap(configMap map[string]any) (Configs, error) {
 	c := make(Configs)
-	maps.ToStruct(configMap, &c)
-	return c
+	if err := maps.ToStruct(configMap, &c); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func ConfigFromProject() (Configs, error) {
@@ -30,6 +32,5 @@ func ConfigFromProject() (Configs, error) {
 	if !ok {
 		return nil, errors.New("no configuration")
 	}
-	config := ConfigFromMap(configMap)
-	return config, nil
+	return ConfigFromMap(configMap)
 }
