@@ -88,7 +88,7 @@ type Message struct {
 type Table map[string]any
 
 func (t Table) Validate() error {
-	return nil
+	return amqp.Table(t).Validate()
 }
 
 const healthTimeout = 5 * time.Second
