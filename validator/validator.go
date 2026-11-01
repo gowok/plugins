@@ -99,6 +99,9 @@ func ValidateStruct(input any, optFns ...ValidateStructOptFn) ValidationError {
 		trans: make(map[string]string),
 	}
 	for _, o := range optFns {
+		if o == nil {
+			continue
+		}
 		o(&opts)
 	}
 

@@ -63,6 +63,19 @@ func TestValidateStruct_repeatedTranslations(t *testing.T) {
 	}
 }
 
+func TestValidateStruct_nilOption(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("ValidateStruct panicked on nil option: %v", r)
+		}
+	}()
+
+	err := ValidateStruct(testUser{Name: "john", Email: "john@mail.com"}, nil)
+	if len(err.Error()) > 0 {
+		t.Fatalf("expected no error, got %q", err.Error())
+	}
+}
+
 func TestValidateStruct_modifyMutatesInput(t *testing.T) {
 	input := &testUser{Name: "  JOHN  ", Email: "john@mail.com"}
 	err := ValidateStruct(input, WithModify())
