@@ -108,6 +108,12 @@ func newHttpDocsFromYAMLFile(filePath string) *httpDocs {
 	return hd
 }
 
+// SetBasePath sets the base path that is applied to all served routes.
+func (docs *httpDocs) SetBasePath(basePath string) {
+	docs.BasePath = basePath
+	docs.swagger.BasePath = basePath
+}
+
 func (docs *httpDocs) AddTag(name, description string) {
 	docs.swagger.Tags = append(docs.swagger.Tags, spec.Tag{
 		TagProps: spec.TagProps{

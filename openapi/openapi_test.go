@@ -138,6 +138,15 @@ func TestHttpDocsAddTag(t *testing.T) {
 	should.Equal(t, "orders", docs.swagger.Tags[1].Name)
 }
 
+func TestHttpDocsSetBasePath(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	docs.SetBasePath("/api/v1")
+
+	should.Equal(t, "/api/v1", docs.BasePath)
+	should.Equal(t, "/api/v1", docs.swagger.BasePath)
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }
