@@ -99,7 +99,7 @@ func NewPolicyABAC(opts ...Option) (*enforcer, error) {
 }
 
 var policy = singleton.New(func() *enforcer {
-	return &enforcer{}
+	return gowok.Must(NewPolicyRBAC())
 })
 
 func Configure(model string, opts ...Option) func() {

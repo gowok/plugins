@@ -5,6 +5,29 @@ import (
 	"testing"
 )
 
+func TestEnforcerWithoutConfigure(t *testing.T) {
+	e := Enforcer()
+	if e.Enforcer == nil {
+		t.Fatal("Enforcer() must fall back to a default model instead of a nil enforcer")
+	}
+
+	policies, err := e.GetPolicy()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(policies) != 0 {
+		t.Fatalf("default enforcer must have no policy, got %v", policies)
+	}
+
+	ok, err := e.Enforce("alice", "data1", ActionRead)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
+		t.Fatal("enforce on an empty default policy must be false")
+	}
+}
+
 func TestConfigureDoesNotWriteIntoCallerOptions(t *testing.T) {
 	opts := make([]Option, 1, 2)
 	opts[0] = func(*enforcer) {}
