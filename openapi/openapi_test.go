@@ -196,6 +196,22 @@ func TestHttpDocsHasDefinition(t *testing.T) {
 	should.Equal(t, false, docs.HasDefinition("missing"))
 }
 
+func TestHttpDocsDeleteDefinition(t *testing.T) {
+	docs := httpDocsInitialize(t)
+
+	type user struct{ Email string }
+	type order struct{ ID string }
+	should.Equal(t, false, docs.DeleteDefinition("user"))
+
+	docs.AddDefinition(user{})
+	docs.AddDefinition(order{})
+
+	should.Equal(t, true, docs.DeleteDefinition("user"))
+	should.Equal(t, false, docs.HasDefinition("user"))
+	should.Equal(t, true, docs.HasDefinition("order"))
+	should.Equal(t, false, docs.DeleteDefinition("missing"))
+}
+
 func TestHttpDocsSetInfo(t *testing.T) {
 	docs := httpDocsInitialize(t)
 

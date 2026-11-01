@@ -297,6 +297,14 @@ func (docs *httpDocs) HasDefinition(name string) bool {
 	return ok
 }
 
+func (docs *httpDocs) DeleteDefinition(name string) bool {
+	if _, ok := docs.swagger.Definitions[name]; !ok {
+		return false
+	}
+	delete(docs.swagger.Definitions, name)
+	return true
+}
+
 func (docs httpDocs) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	ngamux.Res(rw).JSON(docs.swagger)
 }
