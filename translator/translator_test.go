@@ -22,6 +22,22 @@ func TestConfigureRegistersAllTranslators(t *testing.T) {
 	}
 }
 
+func TestGetUnknownLocaleReturnsNil(t *testing.T) {
+	Configure(en.New, id.New)()
+
+	if tr := Get("fr"); tr != nil {
+		t.Fatalf("Get(\"fr\") returned a translator for %q, want nil", tr.Locale())
+	}
+
+	if tr := Get("id"); tr == nil || tr.Locale() != "id" {
+		t.Fatal("Get(\"id\") should return the Indonesian translator")
+	}
+
+	if tr := Get(); tr == nil || tr.Locale() != "en" {
+		t.Fatal("Get() should return the fallback translator for the default locale")
+	}
+}
+
 func TestAddDictionaryUnknownLocaleDoesNotLeakIntoFallback(t *testing.T) {
 	Configure(en.New)()
 

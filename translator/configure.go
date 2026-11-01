@@ -27,12 +27,15 @@ func Configure(
 }
 
 func Get(name ...string) ut.Translator {
-	n := defaults
 	if len(name) > 0 {
-		n = name[0]
+		tt, ok := translator.GetTranslator(name[0])
+		if !ok {
+			return nil
+		}
+		return tt
 	}
 
-	tt, _ := translator.GetTranslator(n)
+	tt, _ := translator.GetTranslator(defaults)
 	return tt
 }
 
