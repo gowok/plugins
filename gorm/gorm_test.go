@@ -333,6 +333,50 @@ func TestExistsUsesModelPrimaryKey(t *testing.T) {
 	}
 }
 
+func TestUpsertTargetsModelPrimaryKey(t *testing.T) {
+	db, err := gorm.Open(stubDialector{}, &gorm.Config{
+		DryRun:                 true,
+		DisableAutomaticPing:   true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to open dry-run database: %v", err)
+	}
+
+	var built string
+	if err := db.Callback().Create().After("gorm:create").Register("test:capture_sql", func(tx *gorm.DB) {
+		built = tx.Statement.SQL.String()
+	}); err != nil {
+		t.Fatalf("failed to register callback: %v", err)
+	}
+
+	record := configuredKeyModel{Code: "a", Name: "alpha"}
+	if err := Upsert(db, &record); err != nil {
+		t.Fatalf("upsert failed: %v", err)
+	}
+
+	if !strings.Contains(built, `ON CONFLICT ("code")`) {
+		t.Fatalf("upsert should target the model primary key, got: %s", built)
+	}
+
+	if !strings.Contains(built, "DO UPDATE SET") {
+		t.Fatalf("upsert should update the conflicting row, got: %s", built)
+	}
+
+	type keylessModel struct {
+		Name string
+	}
+	if err := Upsert(db, &keylessModel{Name: "orphan"}); err == nil {
+		t.Fatal("upsert should reject a model without a primary key")
+	}
+
+	broken := db.Session(&gorm.Session{})
+	broken.AddError(sql.ErrNoRows)
+	if err := Upsert(broken, &record); err != sql.ErrNoRows {
+		t.Fatalf("upsert should surface the create error, got: %v", err)
+	}
+}
+
 func TestUpdateByIDUsesModelPrimaryKey(t *testing.T) {
 	db, err := gorm.Open(stubDialector{}, &gorm.Config{
 		DryRun:                 true,

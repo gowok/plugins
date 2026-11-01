@@ -182,6 +182,23 @@ func Exists[T any](db *gorm.DB, id any) (bool, error) {
 	return count > 0, err
 }
 
+func Upsert[T any](db *gorm.DB, record *T) error {
+	stmt := &gorm.Statement{DB: db}
+	if err := stmt.Parse(record); err != nil {
+		return err
+	}
+
+	columns := make([]clause.Column, 0, len(stmt.Schema.PrimaryFields))
+	for _, field := range stmt.Schema.PrimaryFields {
+		columns = append(columns, clause.Column{Name: field.DBName})
+	}
+	if len(columns) == 0 {
+		return fmt.Errorf("gorm: upsert requires a model with a primary key")
+	}
+
+	return db.Clauses(clause.OnConflict{Columns: columns, UpdateAll: true}).Create(record).Error
+}
+
 func UpdateByID[T any](db *gorm.DB, id any, values any) (T, error) {
 	var dest T
 	err := db.Model(dest).Where(clause.Eq{Column: clause.PrimaryColumn, Value: id}).Updates(values).Error
