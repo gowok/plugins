@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/gowok/fp/maps"
@@ -86,6 +87,16 @@ func closeConnections() {
 func Close() {
 	closeConnections()
 	dbs = make(dbMap)
+}
+
+func Names() []string {
+	names := make([]string, 0, len(dbs))
+	for name := range dbs {
+		names = append(names, name)
+	}
+
+	slices.Sort(names)
+	return names
 }
 
 func DB(name ...string) some.Some[*gorm.DB] {

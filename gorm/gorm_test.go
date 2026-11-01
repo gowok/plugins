@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"slices"
 	"strings"
 	"testing"
 
@@ -103,6 +104,28 @@ func TestCloseDropsConnections(t *testing.T) {
 	}
 
 	Close()
+}
+
+func TestNamesListsSortedConnections(t *testing.T) {
+	prev := dbs
+	dbs = dbMap{"replica": &gorm.DB{}, "default": &gorm.DB{}, "analytics": &gorm.DB{}}
+	t.Cleanup(func() { dbs = prev })
+
+	got := Names()
+	want := []string{"analytics", "default", "replica"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("Names() = %v, want %v", got, want)
+	}
+}
+
+func TestNamesWithoutConnections(t *testing.T) {
+	prev := dbs
+	dbs = make(dbMap)
+	t.Cleanup(func() { dbs = prev })
+
+	if got := Names(); len(got) != 0 {
+		t.Fatalf("Names() = %v, want no names", got)
+	}
 }
 
 type stubDialector struct{}
