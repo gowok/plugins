@@ -16,7 +16,9 @@ type consuming struct {
 func Consume(opts ...func(*consuming)) (<-chan amqp.Delivery, error) {
 	c := consuming{}
 	for _, opt := range opts {
-		opt(&c)
+		if opt != nil {
+			opt(&c)
+		}
 	}
 
 	ownsChannel := c.Channel == nil
