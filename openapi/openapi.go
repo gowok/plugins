@@ -204,6 +204,10 @@ func specSchemaOfStruct(v interface{}) *spec.Schema {
 			jsonTag = jsonTagParts[0]
 		}
 
+		if jsonTag == "-" {
+			continue
+		}
+
 		if prop, ok := sqlNull[field.Type]; ok {
 			schema.Properties[jsonTag] = *prop
 			continue

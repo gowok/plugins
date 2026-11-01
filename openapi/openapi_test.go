@@ -96,6 +96,22 @@ func TestSpecSchemaOfReflectTypeInt(t *testing.T) {
 	should.Equal(t, "int64", schema.Format)
 }
 
+func TestSpecSchemaOfStructSkipsIgnoredField(t *testing.T) {
+	type user struct {
+		Name   string
+		Secret string `json:"-"`
+	}
+
+	schema := specSchemaOfStruct(user{})
+	should.Equal(t, 1, len(schema.Properties))
+	_, ok := schema.Properties["-"]
+	should.Equal(t, false, ok)
+	_, ok = schema.Properties["Secret"]
+	should.Equal(t, false, ok)
+	_, ok = schema.Properties["Name"]
+	should.Equal(t, true, ok)
+}
+
 func TestHttpDocsAddDefinition(t *testing.T) {
 	docs := httpDocsInitialize(t)
 	type user struct{ Email string }
