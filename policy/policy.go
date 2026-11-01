@@ -101,13 +101,15 @@ var policy = singleton.New(func() *enforcer {
 func Configure(model string, opts ...Option) func() {
 	opts = append(opts, withAdapter())
 	return func() {
-		p := &enforcer{}
-		switch model {
-		case "rbac", "RBAC":
-			p = gowok.Must(NewPolicyRBAC(opts...))
-		case "abac", "ABAC":
-			p = gowok.Must(NewPolicyABAC(opts...))
-		}
+		p := func() *enforcer {
+			switch model {
+			case "rbac", "RBAC":
+				return gowok.Must(NewPolicyRBAC(opts...))
+			case "abac", "ABAC":
+				return gowok.Must(NewPolicyABAC(opts...))
+			}
+			return gowok.Must(NewPolicy(model, opts...))
+		}()
 		policy(p)
 	}
 }
