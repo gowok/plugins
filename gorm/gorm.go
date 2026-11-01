@@ -1,6 +1,7 @@
 package gorm
 
 import (
+	"fmt"
 	"log/slog"
 	"slices"
 	"time"
@@ -97,6 +98,25 @@ func Names() []string {
 
 	slices.Sort(names)
 	return names
+}
+
+func Ping(name ...string) error {
+	n := "default"
+	if len(name) > 0 {
+		n = name[0]
+	}
+
+	db, ok := DB(n).Get()
+	if !ok || db == nil || db.Config == nil {
+		return fmt.Errorf("gorm: no connection available for %q", n)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+
+	return sqlDB.Ping()
 }
 
 func DB(name ...string) some.Some[*gorm.DB] {

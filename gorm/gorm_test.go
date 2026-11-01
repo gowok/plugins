@@ -128,6 +128,29 @@ func TestNamesWithoutConnections(t *testing.T) {
 	}
 }
 
+func TestPingConfiguredConnection(t *testing.T) {
+	sqlDB := sql.OpenDB(stubConnector{})
+	t.Cleanup(func() { _ = sqlDB.Close() })
+
+	prev := dbs
+	dbs = dbMap{"default": {Config: &gorm.Config{ConnPool: sqlDB}}}
+	t.Cleanup(func() { dbs = prev })
+
+	if err := Ping(); err != nil {
+		t.Fatalf("Ping() returned an error: %v", err)
+	}
+}
+
+func TestPingReturnsErrorWithoutConnection(t *testing.T) {
+	prev := dbs
+	dbs = make(dbMap)
+	t.Cleanup(func() { dbs = prev })
+
+	if err := Ping("missing"); err == nil {
+		t.Fatal("Ping() should return an error when no connection is configured")
+	}
+}
+
 type stubDialector struct{}
 
 func (stubDialector) Name() string { return "stub" }
