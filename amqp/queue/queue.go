@@ -48,6 +48,33 @@ func New(name string, opts ...func(*queue)) (amqp.Queue, error) {
 	return qq, nil
 }
 
+func Inspect(name string, opts ...func(*queue)) (amqp.Queue, error) {
+	q := queue{Name: name}
+	for _, opt := range opts {
+		if opt != nil {
+			opt(&q)
+		}
+	}
+
+	if q.Channel == nil {
+		ch, err := channel.New()
+		if err != nil {
+			return amqp.Queue{}, err
+		}
+		defer ch.Close()
+		q.Channel = ch
+	}
+
+	return q.Channel.QueueDeclarePassive(
+		q.Name,
+		q.Durable,
+		q.AutoDelete,
+		q.Exclusive,
+		q.NoWait,
+		amqp.Table(q.Args),
+	)
+}
+
 func WithChannel(value *amqp.Channel) func(*queue) {
 	return func(q *queue) {
 		q.Channel = value
