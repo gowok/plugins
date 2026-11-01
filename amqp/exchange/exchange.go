@@ -16,7 +16,9 @@ type exchange struct {
 func New(name string, opts ...func(*exchange)) error {
 	q := exchange{Name: name}
 	for _, opt := range opts {
-		opt(&q)
+		if opt != nil {
+			opt(&q)
+		}
 	}
 
 	if q.Channel == nil {
