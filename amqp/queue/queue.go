@@ -19,7 +19,9 @@ type queue struct {
 func New(name string, opts ...func(*queue)) (amqp.Queue, error) {
 	q := queue{Name: name}
 	for _, opt := range opts {
-		opt(&q)
+		if opt != nil {
+			opt(&q)
+		}
 	}
 
 	if q.Channel == nil {
