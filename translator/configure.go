@@ -18,8 +18,8 @@ func Configure(
 	return func() {
 		ff := fallback()
 		_translators := []locales.Translator{ff}
-		for i, t := range translators {
-			_translators[i] = t()
+		for _, t := range translators {
+			_translators = append(_translators, t())
 		}
 		universalTraslator := ut.New(ff, _translators...)
 		translator = universalTraslator
