@@ -242,18 +242,6 @@ func FindAllPaginated[T any](ctx context.Context, db *gorm.DB, pagination *web.P
 	}
 
 	query := db.WithContext(ctx)
-	columns := make([]string, 0, len(pagination.Filter))
-	for column := range pagination.Filter {
-		columns = append(columns, column)
-	}
-	slices.Sort(columns)
-	for _, column := range columns {
-		value := pagination.Filter[column]
-		if value == nil {
-			continue
-		}
-		query = query.Where(clause.Eq{Column: column, Value: value})
-	}
 
 	for _, filter := range q {
 		if filter != nil {
