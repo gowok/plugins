@@ -30,3 +30,15 @@ func Docs() *httpDocs {
 	d := docs()
 	return *d
 }
+
+var r = singleton.New(func() Router {
+	return Router{}
+})
+
+func Route() *Router {
+	return r()
+}
+
+func RouteGroup(path string, route func(*Router)) {
+	r().GroupFunc(path, route)
+}

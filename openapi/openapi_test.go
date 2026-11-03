@@ -1,11 +1,14 @@
 package openapi
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
 	"github.com/go-openapi/spec"
 	"github.com/gowok/should"
+	"github.com/ngamux/ngamux"
 )
 
 type testRoute struct {
@@ -87,6 +90,57 @@ func TestHttpDocsAddReusedForMultipleRoutes(t *testing.T) {
 
 	// Registering POST /b must not leak the earlier GET operation into /b.
 	should.Nil(t, docs.swagger.Paths.Paths["/b"].Get)
+}
+
+func TestRouterRegistersHandlerAndDocs(t *testing.T) {
+	docs := Docs()
+	mux := ngamux.NewHttpServeMux()
+	router := &Router{group: mux}
+
+	router.Get("/test/products", func(o *Operation) {
+		o.Description = "get all products"
+		o.Summary = "List products"
+		o.Tags = []string{"products"}
+		o.Responses = &spec.Responses{ResponsesProps: spec.ResponsesProps{
+			StatusCodeResponses: map[int]spec.Response{http.StatusOK: {}},
+		}}
+		o.Handler(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+		})
+	})
+
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/test/products", nil))
+	should.Equal(t, http.StatusCreated, rec.Code)
+
+	op := docs.swagger.Paths.Paths["/test/products"].Get
+	should.NotNil(t, op)
+	should.Equal(t, "get all products", op.Description)
+	should.Equal(t, "List products", op.Summary)
+	should.Equal(t, []string{"products"}, op.Tags)
+	should.NotNil(t, op.Responses)
+	_, ok := op.Responses.StatusCodeResponses[http.StatusOK]
+	should.Equal(t, true, ok)
+}
+
+func TestRouterMergesMethodsOnSamePath(t *testing.T) {
+	docs := Docs()
+	mux := ngamux.NewHttpServeMux()
+	router := &Router{group: mux}
+
+	router.Get("/test/items", func(o *Operation) {
+		o.Description = "get all products"
+		o.Handler(func(http.ResponseWriter, *http.Request) {})
+	})
+	router.Post("/test/items", func(o *Operation) {
+		o.Description = "create product"
+		o.Handler(func(http.ResponseWriter, *http.Request) {})
+	})
+
+	item := docs.swagger.Paths.Paths["/test/items"]
+	should.NotNil(t, item.Get)
+	should.NotNil(t, item.Post)
+	should.Equal(t, "create product", item.Post.Description)
 }
 
 func TestSpecSchemaOfReflectTypeInt(t *testing.T) {
