@@ -7,14 +7,23 @@ import (
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
+
+var _health = singleton.New(health.NewServer)
 
 var _g = singleton.New(func() *grpc.Server {
 	s := grpc.NewServer()
 	reflection.Register(s)
+	healthpb.RegisterHealthServer(s, hs())
 	return s
 })
+
+func hs() *health.Server {
+	return *_health()
+}
 
 func g() *grpc.Server {
 	return *_g()
@@ -65,5 +74,6 @@ func GetServiceInfo() map[string]grpc.ServiceInfo {
 }
 
 func Shutdown() {
+	hs().Shutdown()
 	g().GracefulStop()
 }

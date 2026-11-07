@@ -27,6 +27,14 @@ func TestReflectionAlwaysRegistered(t *testing.T) {
 	}
 }
 
+func TestHealthServiceRegistered(t *testing.T) {
+	info := g().GetServiceInfo()
+
+	if _, ok := info["grpc.health.v1.Health"]; !ok {
+		t.Fatal("grpc.health.v1.Health not registered")
+	}
+}
+
 func TestShutdownDoesNotBlockWhenNotServing(t *testing.T) {
 	done := make(chan struct{})
 
