@@ -15,6 +15,11 @@ type testUser struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+type testQuery struct {
+	Page   int    `query:"page" validate:"required,min=1"`
+	Search string `query:"search" validate:"required,min=3"`
+}
+
 func TestValidateStruct(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -114,6 +119,38 @@ func TestValidateJSON(t *testing.T) {
 				t.Fatalf("unexpected result %+v", got)
 			}
 		})
+	}
+}
+
+func TestValidateQuery(t *testing.T) {
+	r := httptest.NewRequest("GET", "/?page=2&search=john", nil)
+
+	got, err := ValidateQuery(r, testQuery{})
+	if err != nil {
+		t.Fatalf("expected no error, got %q", err.Error())
+	}
+	if got.Page != 2 || got.Search != "john" {
+		t.Fatalf("unexpected result %+v", got)
+	}
+}
+
+func TestValidateQuery_invalidRule(t *testing.T) {
+	r := httptest.NewRequest("GET", "/?page=0&search=john", nil)
+
+	if _, err := ValidateQuery(r, testQuery{}); err == nil {
+		t.Fatal("expected validation error, got nil")
+	}
+}
+
+func TestValidateQuery_unparsable(t *testing.T) {
+	r := httptest.NewRequest("GET", "/?page=abc", nil)
+
+	got, err := ValidateQuery(r, testQuery{})
+	if err == nil {
+		t.Fatal("expected parse error, got nil")
+	}
+	if got == nil {
+		t.Fatal("expected non-nil zero value alongside the error")
 	}
 }
 
