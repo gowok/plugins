@@ -63,3 +63,7 @@ func RegisterService(sd *grpc.ServiceDesc, ss any) {
 func GetServiceInfo() map[string]grpc.ServiceInfo {
 	return g().GetServiceInfo()
 }
+
+func Shutdown() {
+	g().GracefulStop()
+}
