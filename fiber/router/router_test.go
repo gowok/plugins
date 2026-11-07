@@ -82,3 +82,28 @@ func TestRouterHelpersFollowPluginState(t *testing.T) {
 		}
 	}
 }
+
+func TestRoutesReflectRegisteredPaths(t *testing.T) {
+	// Disabled: no routes, and callers must not receive a nil slice.
+	if routes := Routes(); routes == nil || len(routes) != 0 {
+		t.Fatalf("Routes() = %v, want empty non-nil slice when disabled", routes)
+	}
+
+	app := fiber.New()
+	fiber_(app)
+	t.Cleanup(func() { fiber_(nil) })
+
+	Get("/ping", func(c *fiber.Ctx) error { return c.SendString("pong") })
+	Post("/items", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusCreated) })
+
+	registered := map[string]bool{}
+	for _, r := range Routes() {
+		registered[r.Method+" "+r.Path] = true
+	}
+
+	for _, want := range []string{"GET /ping", "POST /items"} {
+		if !registered[want] {
+			t.Fatalf("Routes() missing %q, got %v", want, registered)
+		}
+	}
+}

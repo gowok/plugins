@@ -53,3 +53,11 @@ func Use(middleware ...any) {
 		app.Use(middleware...)
 	}
 }
+
+func Routes() []fiber.Route {
+	app := App()
+	if app == nil {
+		return []fiber.Route{}
+	}
+	return app.GetRoutes()
+}
