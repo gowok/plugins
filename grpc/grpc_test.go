@@ -11,3 +11,15 @@ func TestConfigureWithoutConfigurationDoesNotPanic(t *testing.T) {
 
 	Configure()()
 }
+
+func TestReflectionAlwaysRegistered(t *testing.T) {
+	info := g().GetServiceInfo()
+
+	if _, ok := info["grpc.reflection.v1.ServerReflection"]; !ok {
+		t.Fatal("grpc.reflection.v1.ServerReflection not registered")
+	}
+
+	if _, ok := info["grpc.reflection.v1alpha.ServerReflection"]; !ok {
+		t.Fatal("grpc.reflection.v1alpha.ServerReflection not registered")
+	}
+}

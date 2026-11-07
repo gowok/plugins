@@ -7,10 +7,13 @@ import (
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/singleton"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var _g = singleton.New(func() *grpc.Server {
-	return grpc.NewServer()
+	s := grpc.NewServer()
+	reflection.Register(s)
+	return s
 })
 
 func g() *grpc.Server {
