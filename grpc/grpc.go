@@ -77,3 +77,18 @@ func Shutdown() {
 	hs().Shutdown()
 	g().GracefulStop()
 }
+
+func SetServing(service ...string) {
+	hs().SetServingStatus(healthName(service...), healthpb.HealthCheckResponse_SERVING)
+}
+
+func SetNotServing(service ...string) {
+	hs().SetServingStatus(healthName(service...), healthpb.HealthCheckResponse_NOT_SERVING)
+}
+
+func healthName(service ...string) string {
+	if len(service) == 0 {
+		return ""
+	}
+	return service[0]
+}
