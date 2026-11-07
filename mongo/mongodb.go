@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
@@ -13,6 +14,8 @@ import (
 
 var plugin = "mongo"
 
+const closeTimeout = 5 * time.Second
+
 var mongos = make(map[string]*mongo.Client)
 
 func Configure() {
@@ -22,7 +25,7 @@ func Configure() {
 		slog.Warn("no configuration", "plugin", "mongo")
 	}
 
-	mongos = make(map[string]*mongo.Client)
+	Close()
 	c := context.Background()
 
 	for name, dbC := range config {
@@ -38,6 +41,24 @@ func Configure() {
 		}
 
 		mongos[name] = client
+	}
+}
+
+func Close() {
+	clients := mongos
+	mongos = make(map[string]*mongo.Client)
+
+	ctx, cancel := context.WithTimeout(context.Background(), closeTimeout)
+	defer cancel()
+
+	for name, client := range clients {
+		if client == nil {
+			continue
+		}
+
+		if err := client.Disconnect(ctx); err != nil {
+			slog.Warn("failed to close", "name", name, "plugin", plugin, "error", err)
+		}
 	}
 }
 
