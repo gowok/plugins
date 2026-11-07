@@ -2,6 +2,8 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"slices"
@@ -18,6 +20,8 @@ import (
 const healthCheckTimeout = 5 * time.Second
 
 var plugin = "redis"
+
+var ErrNotConfigured = errors.New("redis: no connection available")
 
 var (
 	mutex   sync.RWMutex
@@ -124,6 +128,41 @@ func Ping(name ...string) error {
 	defer cancel()
 
 	return client.Ping(ctx).Err()
+}
+
+func SetJSON(ctx context.Context, key string, v any, expiration time.Duration, name ...string) error {
+	client, ok := Client(name...).Get()
+	if !ok || client == nil {
+		return fmt.Errorf("%w for %q", ErrNotConfigured, nameOrDefault(name...))
+	}
+
+	data, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	return client.Set(ctx, key, data, expiration).Err()
+}
+
+func GetJSON(ctx context.Context, key string, v any, name ...string) error {
+	client, ok := Client(name...).Get()
+	if !ok || client == nil {
+		return fmt.Errorf("%w for %q", ErrNotConfigured, nameOrDefault(name...))
+	}
+
+	data, err := client.Get(ctx, key).Bytes()
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(data, v)
+}
+
+func nameOrDefault(name ...string) string {
+	if len(name) > 0 {
+		return name[0]
+	}
+	return "default"
 }
 
 func Client(name ...string) some.Some[*goredis.Client] {
