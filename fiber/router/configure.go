@@ -69,6 +69,10 @@ func App() *fiber.App {
 	return *a
 }
 
+func Enabled() bool {
+	return App() != nil
+}
+
 func Configure() {
 	_ = App()
 }

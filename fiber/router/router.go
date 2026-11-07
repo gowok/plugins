@@ -5,33 +5,51 @@ import (
 )
 
 func Group(path string, handlers ...fiber.Handler) fiber.Router {
-	return App().Group(path, handlers...)
+	app := App()
+	if app == nil {
+		return nil
+	}
+	return app.Group(path, handlers...)
 }
 
 func HandleFunc(method, path string, handlerFunc ...fiber.Handler) {
-	App().Add(method, path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Add(method, path, handlerFunc...)
+	}
 }
 
 func Get(path string, handlerFunc ...fiber.Handler) {
-	App().Get(path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Get(path, handlerFunc...)
+	}
 }
 
 func Post(path string, handlerFunc ...fiber.Handler) {
-	App().Post(path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Post(path, handlerFunc...)
+	}
 }
 
 func Patch(path string, handlerFunc ...fiber.Handler) {
-	App().Patch(path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Patch(path, handlerFunc...)
+	}
 }
 
 func Put(path string, handlerFunc ...fiber.Handler) {
-	App().Put(path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Put(path, handlerFunc...)
+	}
 }
 
 func Delete(path string, handlerFunc ...fiber.Handler) {
-	App().Delete(path, handlerFunc...)
+	if app := App(); app != nil {
+		app.Delete(path, handlerFunc...)
+	}
 }
 
 func Use(middleware ...any) {
-	App().Use(middleware...)
+	if app := App(); app != nil {
+		app.Use(middleware...)
+	}
 }

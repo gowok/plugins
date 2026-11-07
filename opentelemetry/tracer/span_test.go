@@ -17,7 +17,6 @@ func TestTraceIDAndSpanIDWithoutSpan(t *testing.T) {
 		t.Fatalf("SpanID without span = %q, want empty", got)
 	}
 
-	// A zero value span context is invalid and must not leak IDs.
 	ctx := trace.ContextWithSpanContext(context.Background(), trace.SpanContext{})
 	if got := TraceID(ctx); got != "" {
 		t.Fatalf("TraceID with invalid span = %q, want empty", got)
@@ -34,12 +33,10 @@ func TestTraceIDAndSpanIDFallback(t *testing.T) {
 		t.Fatalf("SpanID fallback = %q, want %q", got, "unknown")
 	}
 
-	// Only the first fallback is used.
 	if got := TraceID(ctx, "first", "second"); got != "first" {
 		t.Fatalf("TraceID fallback = %q, want %q", got, "first")
 	}
 
-	// An invalid span context still yields the fallback.
 	invalid := trace.ContextWithSpanContext(ctx, trace.SpanContext{})
 	if got := TraceID(invalid, "unknown"); got != "unknown" {
 		t.Fatalf("TraceID fallback with invalid span = %q, want %q", got, "unknown")
