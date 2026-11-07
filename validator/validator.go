@@ -91,6 +91,18 @@ func RegisterValidation(tag string, fn govalidator.Func, callValidationEvenIfNul
 	_ = v.validate.RegisterValidation(tag, fn, callValidationEvenIfNull...)
 }
 
+func RegisterAlias(alias, tags string) {
+	if alias == "" || tags == "" {
+		return
+	}
+
+	v := *vv()
+	if v == nil || v.validate == nil {
+		return
+	}
+	v.validate.RegisterAlias(alias, tags)
+}
+
 type ValidateStructOpts struct {
 	trans  map[string]string
 	modify bool

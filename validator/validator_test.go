@@ -204,6 +204,27 @@ func TestValidationError_nonTranslatorMessage(t *testing.T) {
 	}
 }
 
+func TestRegisterAlias(t *testing.T) {
+	RegisterAlias("alias-test-password", "required,min=8")
+
+	type input struct {
+		Password string `validate:"alias-test-password"`
+	}
+
+	if err := ValidateStruct(input{Password: "short"}); !strings.Contains(err.Error(), "Password") {
+		t.Fatalf("expected password length error, got %q", err.Error())
+	}
+
+	if err := ValidateStruct(input{Password: "longenough"}); err.Error() != "" {
+		t.Fatalf("expected input to pass, got %q", err.Error())
+	}
+}
+
+func TestRegisterAlias_emptyInput(t *testing.T) {
+	RegisterAlias("", "required")
+	RegisterAlias("alias-test-empty-tags", "")
+}
+
 func TestRegisterValidationUnique_emptyParam(t *testing.T) {
 	RegisterValidation("db-unique-empty", registerValidationUnique(func(table, column, value string) bool {
 		t.Fatalf("expected no callback without a parameter, got (%q, %q, %q)", table, column, value)
