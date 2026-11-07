@@ -111,6 +111,56 @@ func TestGrantAndRevoke(t *testing.T) {
 	}
 }
 
+func TestGrantAndRevokeRole(t *testing.T) {
+	e, err := NewPolicyRBAC()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if _, err := e.Grant("admin", "data1", ActionRead); err != nil {
+		t.Fatalf("grant: unexpected error: %v", err)
+	}
+
+	if ok, err := e.Enforce("alice", "data1", ActionRead); err != nil || ok {
+		t.Fatalf("before role grant: got (%v, %v), want (false, nil)", ok, err)
+	}
+	if ok, err := e.HasRole("alice", "admin"); err != nil || ok {
+		t.Fatalf("has role before grant: got (%v, %v), want (false, nil)", ok, err)
+	}
+
+	if added, err := e.GrantRole("alice", "admin"); err != nil || !added {
+		t.Fatalf("grant role: got (%v, %v), want (true, nil)", added, err)
+	}
+	if ok, err := e.HasRole("alice", "admin"); err != nil || !ok {
+		t.Fatalf("has role after grant: got (%v, %v), want (true, nil)", ok, err)
+	}
+	if ok, err := e.Enforce("alice", "data1", ActionRead); err != nil || !ok {
+		t.Fatalf("after role grant: got (%v, %v), want (true, nil)", ok, err)
+	}
+
+	if removed, err := e.RevokeRole("alice", "admin"); err != nil || !removed {
+		t.Fatalf("revoke role: got (%v, %v), want (true, nil)", removed, err)
+	}
+	if ok, err := e.HasRole("alice", "admin"); err != nil || ok {
+		t.Fatalf("has role after revoke: got (%v, %v), want (false, nil)", ok, err)
+	}
+	if ok, err := e.Enforce("alice", "data1", ActionRead); err != nil || ok {
+		t.Fatalf("after role revoke: got (%v, %v), want (false, nil)", ok, err)
+	}
+}
+
+func TestRoleHelpersOnNilEnforcer(t *testing.T) {
+	if _, err := (*enforcer)(nil).GrantRole("alice", "admin"); err != ErrNilEnforcer {
+		t.Fatalf("grant role on nil enforcer: got %v, want %v", err, ErrNilEnforcer)
+	}
+	if _, err := (*enforcer)(nil).RevokeRole("alice", "admin"); err != ErrNilEnforcer {
+		t.Fatalf("revoke role on nil enforcer: got %v, want %v", err, ErrNilEnforcer)
+	}
+	if _, err := (*enforcer)(nil).HasRole("alice", "admin"); err != ErrNilEnforcer {
+		t.Fatalf("has role on nil enforcer: got %v, want %v", err, ErrNilEnforcer)
+	}
+}
+
 func TestNewPolicySkipsNilOption(t *testing.T) {
 	e, err := NewPolicyRBAC(nil)
 	if err != nil {

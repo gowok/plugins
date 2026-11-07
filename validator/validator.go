@@ -160,9 +160,6 @@ func ValidateJSON[T any](r *http.Request, schema T, optFns ...ValidateStructOptF
 	return &schema, nil
 }
 
-// ValidateQuery parses the request query string into schema and validates it,
-// mirroring ValidateJSON for endpoints whose input arrives as query parameters.
-// Only fields tagged with `query` are populated.
 func ValidateQuery[T any](r *http.Request, schema T, optFns ...ValidateStructOptFn) (*T, *ValidationError) {
 	err := ngamux.Req(r).QueriesParser(&schema)
 	if err != nil {

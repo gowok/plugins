@@ -2,6 +2,7 @@ package policy
 
 import (
 	"errors"
+	"slices"
 
 	"github.com/casbin/casbin/v2"
 )
@@ -28,4 +29,32 @@ func (e *enforcer) Revoke(sub, obj, act string) (bool, error) {
 		return false, ErrNilEnforcer
 	}
 	return e.RemovePolicy(sub, obj, act)
+}
+
+// GrantRole assigns role to sub, so sub inherits every rule granted to role.
+func (e *enforcer) GrantRole(sub, role string) (bool, error) {
+	if e == nil || e.Enforcer == nil {
+		return false, ErrNilEnforcer
+	}
+	return e.AddRoleForUser(sub, role)
+}
+
+// RevokeRole removes the role assignment from sub.
+func (e *enforcer) RevokeRole(sub, role string) (bool, error) {
+	if e == nil || e.Enforcer == nil {
+		return false, ErrNilEnforcer
+	}
+	return e.DeleteRoleForUser(sub, role)
+}
+
+// HasRole reports whether sub is assigned to role.
+func (e *enforcer) HasRole(sub, role string) (bool, error) {
+	if e == nil || e.Enforcer == nil {
+		return false, ErrNilEnforcer
+	}
+	roles, err := e.GetRolesForUser(sub)
+	if err != nil {
+		return false, err
+	}
+	return slices.Contains(roles, role), nil
 }
