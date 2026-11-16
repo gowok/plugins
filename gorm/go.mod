@@ -3,6 +3,7 @@ module github.com/gowok/plugins/gorm
 go 1.25
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/gowok/fp v0.2.2
 	github.com/gowok/gowok v0.4.36
 	github.com/ngamux/ngamux v1.7.52
@@ -11,6 +12,7 @@ require (
 )
 
 require (
+
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
