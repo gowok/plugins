@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"log/slog"
 	"sync"
 	"time"
@@ -73,7 +74,7 @@ func Enabled() bool {
 	return App() != nil
 }
 
-func Configure() {
+func Configure(_ context.Context) {
 	_ = App()
 }
 

@@ -1,26 +1,31 @@
 module github.com/gowok/plugins/validator
 
-go 1.25
+go 1.27
 
 require (
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/mold/v4 v4.5.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.36
+	github.com/gowok/fp v0.3.3
+	github.com/gowok/gowok v0.5.1
 	github.com/lib/pq v1.10.9
-	github.com/ngamux/ngamux v1.7.52
+	github.com/ngamux/ngamux v1.7.53
 )
 
 require (
+	github.com/andybalholm/brotli v1.3.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gosimple/slug v1.15.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/klauspost/compress v1.20.5 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/ngamux/middleware v0.0.12 // indirect
+	github.com/ngamux/middleware v0.1.6 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/segmentio/go-camelcase v0.0.0-20160726192923-7085f1e3c734 // indirect
 	github.com/segmentio/go-snakecase v1.2.0 // indirect

@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"log/slog"
 	"net"
 
@@ -33,8 +34,8 @@ type Service interface {
 	Description() *grpc.ServiceDesc
 }
 
-func Configure(services ...Service) func() {
-	return func() {
+func Configure(services ...Service) func(context.Context) {
+	return func(_ context.Context) {
 		config, err := getConfig()
 		if err != nil {
 			slog.Warn("failed to start", "error", err)

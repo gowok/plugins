@@ -1,6 +1,7 @@
 package amqp
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -34,8 +35,8 @@ func Connection() some.Some[*amqp.Connection] {
 	return some.Of(*c)
 }
 
-func Configure(onError func(error)) func() {
-	return func() {
+func Configure(onError func(error)) func(context.Context) {
+	return func(_ context.Context) {
 		slog := slog.With("plugin", plugin)
 		if onError == nil {
 			onError = func(err error) {}

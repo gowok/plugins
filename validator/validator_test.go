@@ -190,7 +190,7 @@ func TestConfigure_appliesTranslator(t *testing.T) {
 		t.Fatal("failed to create translator")
 	}
 
-	Configure(WithTranslator(other))()
+	Configure(WithTranslator(other))(context.Background())
 
 	if got := (*vv()).trans; got != other {
 		t.Fatal("expected Configure to apply the configured translator, but it was discarded")

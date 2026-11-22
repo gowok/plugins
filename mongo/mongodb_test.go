@@ -75,7 +75,7 @@ func TestConfigureDropsConnectionsFromPreviousConfig(t *testing.T) {
 		}
 	})
 
-	Configure()
+	Configure(context.Background())
 
 	if ClientNoDefault("stale").IsPresent() {
 		t.Fatal("connection from the previous configuration should be closed")

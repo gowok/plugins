@@ -47,7 +47,7 @@ func TestConfigureClearsConnectionsFromPreviousConfig(t *testing.T) {
 		}
 	})
 
-	Configure(nil)()
+	Configure(nil)(context.Background())
 
 	if DBNoDefault("stale").IsPresent() {
 		t.Fatal("connection from previous config should no longer be available")
@@ -76,7 +76,7 @@ func TestConfigureClosesConnectionsFromPreviousConfig(t *testing.T) {
 		}
 	})
 
-	Configure(nil)()
+	Configure(nil)(context.Background())
 
 	if err := sqlDB.Ping(); err == nil {
 		t.Fatal("connection from previous configuration should be closed")

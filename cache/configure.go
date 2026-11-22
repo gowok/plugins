@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -35,7 +36,7 @@ func estimateCost(value any) int64 {
 	return 1
 }
 
-func Configure() {
+func Configure(_ context.Context) {
 	config, err := ConfigFromProject()
 	if err != nil {
 		slog.Warn(err.Error(), "plugin", plugin)

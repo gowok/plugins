@@ -18,7 +18,7 @@ const closeTimeout = 5 * time.Second
 
 var mongos = make(map[string]*mongo.Client)
 
-func Configure() {
+func Configure(_ context.Context) {
 	var config Configs
 	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "mongo"), &config)
 	if err != nil {

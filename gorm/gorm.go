@@ -24,9 +24,9 @@ type dbMap map[string]*gorm.DB
 var plugin = "gorm"
 var dbs = make(dbMap)
 
-func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func() {
+func Configure(drivers map[string]Opener, cfgs ...gorm.Option) func(context.Context) {
 	cfgs = append([]gorm.Option{&gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}}, cfgs...)
-	return func() {
+	return func(_ context.Context) {
 		closeConnections()
 		dbs = make(dbMap)
 

@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -52,13 +53,13 @@ func WithTranslator(trans ut.Translator) func(*config) {
 	}
 }
 
-func Configure(opts ...func(*config)) func() {
+func Configure(opts ...func(*config)) func(context.Context) {
 	config := &config{}
 	for _, opt := range opts {
 		opt(config)
 	}
 
-	return func() {
+	return func(_ context.Context) {
 		v := *vv()
 
 		if config.unique != nil {

@@ -1,6 +1,8 @@
 package policy
 
 import (
+	"context"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	"github.com/gowok/fp/slices"
@@ -97,13 +99,13 @@ var policy = singleton.New(func() *enforcer {
 	return gowok.Must(NewPolicyRBAC())
 })
 
-func Configure(model string, opts ...Option) func() {
+func Configure(model string, opts ...Option) func(context.Context) {
 	options := slices.Map(opts, func(data Option) Option {
 		return data
 	})
 	options = append(options, withAdapter())
 
-	return func() {
+	return func(_ context.Context) {
 		p := func() *enforcer {
 			switch model {
 			case "rbac", "RBAC":
@@ -117,11 +119,11 @@ func Configure(model string, opts ...Option) func() {
 	}
 }
 
-func ConfigureRBAC(opts ...Option) func() {
+func ConfigureRBAC(opts ...Option) func(context.Context) {
 	return Configure("rbac", opts...)
 }
 
-func ConfigureABAC(opts ...Option) func() {
+func ConfigureABAC(opts ...Option) func(context.Context) {
 	return Configure("abac", opts...)
 }
 

@@ -21,7 +21,7 @@ import (
 
 var traces = map[string]trace.TracerProviderOption{}
 
-func Configure() {
+func Configure(_ context.Context) {
 	var config Config
 	err := maps.ToStruct(maps.Get[map[string]any](gowok.Config.Map(), "opentelemetry"), &config)
 	if err != nil {

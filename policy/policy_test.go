@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"context"
 	"strings"
 	"testing"
 )
@@ -40,7 +41,7 @@ func TestConfigureDoesNotWriteIntoCallerOptions(t *testing.T) {
 }
 
 func TestConfigureABACUsesABACModel(t *testing.T) {
-	ConfigureABAC()()
+	ConfigureABAC()(context.Background())
 
 	e := Enforcer()
 	if e == nil || e.Enforcer == nil {
@@ -68,7 +69,7 @@ e = some(where (p.eft == allow))
 m = r.sub == p.sub && r.obj == p.obj && r.act == p.act
 `
 
-	Configure(customModel)()
+	Configure(customModel)(context.Background())
 
 	e := Enforcer()
 	if e == nil || e.Enforcer == nil {

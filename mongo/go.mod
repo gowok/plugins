@@ -1,22 +1,26 @@
 module github.com/gowok/plugins/mongo
 
-go 1.25
+go 1.27
 
 require (
-	github.com/gowok/fp v0.2.2
-	github.com/gowok/gowok v0.4.36
+	github.com/gowok/fp v0.3.3
+	github.com/gowok/gowok v0.5.1
 	go.mongodb.org/mongo-driver v1.17.2
 )
 
 require (
+	github.com/andybalholm/brotli v1.3.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/klauspost/compress v1.16.7 // indirect
+	github.com/klauspost/compress v1.20.5 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/ngamux/middleware v0.0.12 // indirect
-	github.com/ngamux/ngamux v1.7.52 // indirect
+	github.com/ngamux/middleware v0.1.6 // indirect
+	github.com/ngamux/ngamux v1.7.53 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect

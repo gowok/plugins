@@ -1,6 +1,8 @@
 package translator
 
 import (
+	"context"
+
 	"github.com/go-playground/locales"
 	ut "github.com/go-playground/universal-translator"
 )
@@ -14,8 +16,8 @@ var translator *ut.UniversalTranslator
 func Configure(
 	fallback func() locales.Translator,
 	translators ...func() locales.Translator,
-) func() {
-	return func() {
+) func(context.Context) {
+	return func(_ context.Context) {
 		ff := fallback()
 		_translators := []locales.Translator{ff}
 		for _, t := range translators {

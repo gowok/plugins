@@ -20,7 +20,7 @@ func TestConfigureWithoutConfigurationDoesNotPanic(t *testing.T) {
 		}
 	}()
 
-	Configure()()
+	Configure()(context.Background())
 }
 
 func TestReflectionAlwaysRegistered(t *testing.T) {

@@ -1,6 +1,7 @@
 package translator
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-playground/locales"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestConfigureRegistersAllTranslators(t *testing.T) {
-	Configure(en.New, id.New, fr.New)()
+	Configure(en.New, id.New, fr.New)(context.Background())
 
 	for _, locale := range []string{"en", "id", "fr"} {
 		tr := Get(locale)
@@ -25,7 +26,7 @@ func TestConfigureRegistersAllTranslators(t *testing.T) {
 }
 
 func TestGetUnknownLocaleReturnsNil(t *testing.T) {
-	Configure(en.New, id.New)()
+	Configure(en.New, id.New)(context.Background())
 
 	if tr := Get("fr"); tr != nil {
 		t.Fatalf("Get(\"fr\") returned a translator for %q, want nil", tr.Locale())
@@ -41,7 +42,7 @@ func TestGetUnknownLocaleReturnsNil(t *testing.T) {
 }
 
 func TestAddDictionaryUnknownLocaleDoesNotLeakIntoFallback(t *testing.T) {
-	Configure(en.New)()
+	Configure(en.New)(context.Background())
 
 	AddDictionary("xx", map[string]string{"leak": "leaked"})
 
@@ -51,7 +52,7 @@ func TestAddDictionaryUnknownLocaleDoesNotLeakIntoFallback(t *testing.T) {
 }
 
 func TestRForwardsRangeArgumentsInOrder(t *testing.T) {
-	Configure(ru.New)()
+	Configure(ru.New)(context.Background())
 
 	tr := Get("ru")
 	for rule, text := range map[locales.PluralRule]string{

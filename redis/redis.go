@@ -28,7 +28,7 @@ var (
 	clients = make(map[string]*goredis.Client)
 )
 
-func Configure() {
+func Configure(_ context.Context) {
 	Close()
 
 	configs := ConfigFromMap(maps.Get[map[string]any](gowok.Config.Map(), plugin))
