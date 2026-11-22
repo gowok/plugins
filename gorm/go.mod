@@ -6,8 +6,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gowok/fp v0.3.3
 	github.com/gowok/gowok v0.5.1
+	github.com/ngamux/middleware v0.1.6
 	github.com/ngamux/ngamux v1.7.53
 	gorm.io/driver/postgres v1.6.0
+	gorm.io/driver/sqlite v1.5.7
 	gorm.io/gorm v1.25.12
 )
 
@@ -24,7 +26,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.20.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/ngamux/middleware v0.1.6 // indirect
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
