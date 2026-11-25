@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -11,6 +12,7 @@ import (
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
 	"github.com/gowok/gowok/storage"
+	"github.com/ngamux/ngamux"
 )
 
 var clients = sync.Map{}
@@ -81,14 +83,43 @@ func Configure(input *ConfigureInput) func(context.Context) {
 				bucket: c.Bucket,
 			}
 
-			_, err = s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
-			if err != nil {
-				input.OnError(err)
-				return
-			}
-
 			clients.Store(key, s3Client)
 			storage.Register(key, s3Client)
 		}
+
+		gowok.Health.Add("s3", func() any {
+			status := "UP"
+			results := map[string]any{}
+
+			clients.Range(func(key, value any) bool {
+				name := key.(string)
+				c, ok := value.(*client)
+				if !ok || c == nil {
+					status = "DOWN"
+					results[name] = ngamux.Map{"status": "DOWN"}
+					return true
+				}
+
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+
+				_, err := c.HeadBucket(ctx, &s3.HeadBucketInput{
+					Bucket: gowok.ToPtr(c.bucket),
+				})
+				if err != nil {
+					status = "DOWN"
+					results[name] = ngamux.Map{"status": "DOWN"}
+				} else {
+					results[name] = ngamux.Map{"status": "UP"}
+				}
+				return true
+			})
+
+			if len(results) == 0 {
+				status = "DOWN"
+			}
+			return ngamux.Map{"status": status, "clients": results}
+		})
+
 	}
 }

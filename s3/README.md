@@ -49,10 +49,12 @@ s3:
   default:
     enabled: true
     region: us-east-1
+    bucket: payments
 
   prod:
     enabled: true
     region: ap-southeast-1
+    bucket: production-assets
 
   staging:
     enabled: false
@@ -61,6 +63,9 @@ s3:
 
 The map key is the client name.
 `s3.Client()` looks up `default`; `s3.Client("prod")` looks up `prod`.
+
+Only `enabled`, `region`, `endpoint`, and `bucket` are applied by the plugin.
+Credentials come from the standard AWS SDK v2 credential chain, such as environment variables, shared AWS configuration, or an IAM role. Do not put credentials in committed YAML files.
 
 ## Usage
 
