@@ -83,6 +83,12 @@ func Configure(input *ConfigureInput) func(context.Context) {
 				bucket: c.Bucket,
 			}
 
+			_, err = s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
+			if err != nil {
+				input.OnError(err)
+				return
+			}
+
 			clients.Store(key, s3Client)
 			storage.Register(key, s3Client)
 		}
@@ -92,7 +98,12 @@ func Configure(input *ConfigureInput) func(context.Context) {
 			results := map[string]any{}
 
 			clients.Range(func(key, value any) bool {
-				name := key.(string)
+				name, ok := key.(string)
+				if !ok {
+					status = "DOWN"
+					return true
+				}
+
 				c, ok := value.(*client)
 				if !ok || c == nil {
 					status = "DOWN"
@@ -101,11 +112,10 @@ func Configure(input *ConfigureInput) func(context.Context) {
 				}
 
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				defer cancel()
-
 				_, err := c.HeadBucket(ctx, &s3.HeadBucketInput{
 					Bucket: gowok.ToPtr(c.bucket),
 				})
+				cancel()
 				if err != nil {
 					status = "DOWN"
 					results[name] = ngamux.Map{"status": "DOWN"}
