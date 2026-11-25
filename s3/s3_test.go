@@ -94,14 +94,14 @@ func enabledConfig(endpoint string) map[string]any {
 func TestClient(t *testing.T) {
 	resetS3State(t)
 
-	first := &s3.Client{}
-	second := &s3.Client{}
+	first := &client{}
+	second := &client{}
 
 	tests := []struct {
 		name     string
 		stored   map[string]any
 		names    []string
-		want     *s3.Client
+		want     *client
 		wantNone bool
 	}{
 		{name: "empty map", wantNone: true},
@@ -110,7 +110,8 @@ func TestClient(t *testing.T) {
 		{name: "fallback name", stored: map[string]any{"worker": second}, names: []string{"missing", "worker"}, want: second},
 		{name: "missing name", stored: map[string]any{"worker": second}, names: []string{"missing"}, wantNone: true},
 		{name: "wrong type", stored: map[string]any{"default": "not a client"}, wantNone: true},
-		{name: "nil client", stored: map[string]any{"default": (*s3.Client)(nil)}, wantNone: true},
+		{name: "wrong SDK client type", stored: map[string]any{"default": &s3.Client{}}, wantNone: true},
+		{name: "nil client", stored: map[string]any{"default": (*client)(nil)}, wantNone: true},
 		{name: "nil then valid fallback", stored: map[string]any{"default": nil, "worker": second}, names: []string{"default", "worker"}, want: second},
 	}
 

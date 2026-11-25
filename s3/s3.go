@@ -10,11 +10,12 @@ import (
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/storage"
 )
 
 var clients = sync.Map{}
 
-func Client(names ...string) some.Some[*s3.Client] {
+func Client(names ...string) some.Some[*client] {
 	if len(names) == 0 {
 		names = append(names, "default")
 	}
@@ -24,7 +25,7 @@ func Client(names ...string) some.Some[*s3.Client] {
 		if !ok {
 			continue
 		}
-		client, ok := val.(*s3.Client)
+		client, ok := val.(*client)
 		if !ok {
 			continue
 		}
@@ -32,7 +33,7 @@ func Client(names ...string) some.Some[*s3.Client] {
 			return some.Of(client)
 		}
 	}
-	return some.Empty[*s3.Client]()
+	return some.Empty[*client]()
 }
 
 type ConfigureInput struct {
@@ -75,7 +76,10 @@ func Configure(input *ConfigureInput) func(context.Context) {
 				cfg.BaseEndpoint = &c.Endpoint
 			}
 
-			s3Client := s3.NewFromConfig(cfg)
+			s3Client := &client{
+				Client: *s3.NewFromConfig(cfg),
+				bucket: c.Bucket,
+			}
 
 			_, err = s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
 			if err != nil {
@@ -84,6 +88,7 @@ func Configure(input *ConfigureInput) func(context.Context) {
 			}
 
 			clients.Store(key, s3Client)
+			storage.Register(key, s3Client)
 		}
 	}
 }
