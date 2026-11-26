@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
@@ -68,6 +69,7 @@ func Configure(input *ConfigureInput) func(context.Context) {
 
 			cfg, err := config.LoadDefaultConfig(ctx,
 				config.WithRegion(c.Region),
+				config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(c.AccessKeyID, c.SecretAccessKey, "")),
 			)
 			if err != nil {
 				input.OnError(err)
@@ -80,10 +82,12 @@ func Configure(input *ConfigureInput) func(context.Context) {
 
 			s3Client := &client{
 				Client: *s3.NewFromConfig(cfg),
-				bucket: c.Bucket,
+				config: c,
 			}
 
-			_, err = s3Client.ListBuckets(ctx, &s3.ListBucketsInput{})
+			_, err = s3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+				Bucket: &c.Bucket,
+			})
 			if err != nil {
 				input.OnError(err)
 				return
@@ -113,7 +117,7 @@ func Configure(input *ConfigureInput) func(context.Context) {
 
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				_, err := c.HeadBucket(ctx, &s3.HeadBucketInput{
-					Bucket: gowok.ToPtr(c.bucket),
+					Bucket: gowok.ToPtr(c.config.Bucket),
 				})
 				cancel()
 				if err != nil {

@@ -11,12 +11,12 @@ import (
 
 type client struct {
 	s3.Client
-	bucket string
+	config Config
 }
 
 func (c client) Get(ctx context.Context, key string) ([]byte, error) {
 	res, err := c.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: gowok.ToPtr(c.bucket),
+		Bucket: gowok.ToPtr(c.config.Bucket),
 		Key:    gowok.ToPtr(key),
 	})
 	if err != nil {
@@ -36,7 +36,7 @@ func (c client) Get(ctx context.Context, key string) ([]byte, error) {
 
 func (c client) Put(ctx context.Context, key string, body []byte) error {
 	_, err := c.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: gowok.ToPtr(c.bucket),
+		Bucket: gowok.ToPtr(c.config.Bucket),
 		Key:    gowok.ToPtr(key),
 		Body:   bytes.NewReader(body),
 	})
@@ -45,4 +45,8 @@ func (c client) Put(ctx context.Context, key string, body []byte) error {
 	}
 
 	return nil
+}
+
+func (c client) Config() Config {
+	return c.config
 }
