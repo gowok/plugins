@@ -62,6 +62,12 @@ func newS3Server(t *testing.T, status int) (*httptest.Server, *atomic.Int32) {
 		if r.Method != http.MethodGet {
 			t.Errorf("request method = %s, want GET", r.Method)
 		}
+		if got, want := r.URL.Path, "/test-bucket"; got != want {
+			t.Errorf("request path = %q, want %q", got, want)
+		}
+		if got := r.URL.Query().Get("list-type"); got != "2" {
+			t.Errorf("list-type = %q, want 2", got)
+		}
 		if r.Header.Get("Authorization") == "" {
 			t.Error("request is missing AWS authorization header")
 		}
@@ -70,10 +76,13 @@ func newS3Server(t *testing.T, status int) (*httptest.Server, *atomic.Int32) {
 		w.WriteHeader(status)
 		if status == http.StatusOK {
 			_, _ = fmt.Fprint(w, `<?xml version="1.0" encoding="UTF-8"?>
-<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-  <Owner><ID>test</ID><DisplayName>test</DisplayName></Owner>
-  <Buckets></Buckets>
-</ListAllMyBucketsResult>`)
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>test-bucket</Name>
+  <Prefix></Prefix>
+  <KeyCount>0</KeyCount>
+  <MaxKeys>1000</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+</ListBucketResult>`)
 			return
 		}
 		_, _ = fmt.Fprint(w, `<Error><Code>AccessDenied</Code><Message>denied</Message></Error>`)
@@ -84,10 +93,12 @@ func newS3Server(t *testing.T, status int) (*httptest.Server, *atomic.Int32) {
 
 func enabledConfig(endpoint string) map[string]any {
 	return map[string]any{
-		"enabled":  true,
-		"region":   "us-east-1",
-		"endpoint": endpoint,
-		"bucket":   "test-bucket",
+		"enabled":           true,
+		"region":            "us-east-1",
+		"endpoint":          endpoint,
+		"access_key_id":     "test-access-key",
+		"secret_access_key": "test-secret-key",
+		"bucket":            "test-bucket",
 	}
 }
 

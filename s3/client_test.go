@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
@@ -31,7 +32,28 @@ func newTestClient(t *testing.T, endpoint string, httpClient aws.HTTPClient) cli
 	sdkClient := awss3.NewFromConfig(cfg, func(options *awss3.Options) {
 		options.UsePathStyle = true
 	})
-	return client{Client: *sdkClient, bucket: "test-bucket"}
+	return client{
+		Client: *sdkClient,
+		config: Config{Bucket: "test-bucket"},
+	}
+}
+
+func TestClientConfig(t *testing.T) {
+	want := Config{
+		Enabled:         true,
+		Region:          "us-east-1",
+		Endpoint:        "http://localhost:9000",
+		AccessKeyID:     "test-access-key",
+		SecretAccessKey: "test-secret-key",
+		Bucket:          "test-bucket",
+		ForcePathStyle:  true,
+		Timeout:         5 * time.Second,
+	}
+	c := client{config: want}
+
+	if got := c.Config(); got != want {
+		t.Fatalf("Config() = %+v, want %+v", got, want)
+	}
 }
 
 func TestClientGet(t *testing.T) {

@@ -28,13 +28,19 @@ func newHealthS3Server(t *testing.T) (*httptest.Server, *atomic.Bool) {
 	healthy.Store(true)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
-		case r.Method == http.MethodGet && r.URL.Path == "/":
+		case r.Method == http.MethodGet && r.URL.Path == "/test-bucket":
+			if got := r.URL.Query().Get("list-type"); got != "2" {
+				t.Errorf("list-type = %q, want 2", got)
+			}
 			w.Header().Set("Content-Type", "application/xml")
 			_, _ = w.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?>
-<ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-  <Owner><ID>test</ID><DisplayName>test</DisplayName></Owner>
-  <Buckets></Buckets>
-</ListAllMyBucketsResult>`))
+<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  <Name>test-bucket</Name>
+  <Prefix></Prefix>
+  <KeyCount>0</KeyCount>
+  <MaxKeys>1000</MaxKeys>
+  <IsTruncated>false</IsTruncated>
+</ListBucketResult>`))
 		case r.Method == http.MethodHead && r.URL.Path == "/test-bucket":
 			if !healthy.Load() {
 				w.WriteHeader(http.StatusForbidden)
