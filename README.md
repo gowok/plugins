@@ -8,6 +8,7 @@ Here some of available plugins:
 * [fiber](https://github.com/gowok/plugins/tree/master/fiber) - HTTP server library if you won't to use what Gowok has.
 * [gorm](https://github.com/gowok/plugins/tree/master/gorm) - Manage multiple connection of [GORM](https://gorm.io).
 * [mongo](https://github.com/gowok/plugins/tree/master/mongo) - Manage multiple connection of [MongoDB](https://www.mongodb.com)
+* [memcached](https://github.com/gowok/plugins/tree/master/memcached) - Manage multiple connection of [Memcached](https://memcached.org).
 * [openapi](https://github.com/gowok/plugins/tree/master/openapi) - Serving API documentation with [OpenAPI](https://www.openapis.org) standard.
 * [opentelemetry](https://github.com/gowok/plugins/tree/master/opentelemetry) - Metrics and tracers telemetry exporter.
 * [policy](https://github.com/gowok/plugins/tree/master/policy) - Manage access rules to authorize user with all [Casbin](https://casbin.org) abilities.
