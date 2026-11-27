@@ -13,6 +13,7 @@ import (
 	"github.com/gowok/fp/maps"
 	"github.com/gowok/fp/some"
 	"github.com/gowok/gowok"
+	"github.com/gowok/gowok/cache"
 	"github.com/ngamux/ngamux"
 	goredis "github.com/redis/go-redis/v9"
 )
@@ -48,22 +49,23 @@ func Configure(_ context.Context) {
 			continue
 		}
 
-		client := goredis.NewClient(opts)
+		c := goredis.NewClient(opts)
 
 		ctx, cancel := context.WithTimeout(context.Background(), healthCheckTimeout)
-		err = client.Ping(ctx).Err()
+		err = c.Ping(ctx).Err()
 		cancel()
 		if err != nil {
-			_ = client.Close()
+			_ = c.Close()
 			slog.Warn("failed to connect", "name", name, "plugin", plugin, "error", err)
 			continue
 		}
 
 		mutex.Lock()
-		clients[name] = client
+		clients[name] = c
 		mutex.Unlock()
 
-		registerHealth(name, client)
+		registerHealth(name, c)
+		cache.Register(name, &client{c})
 	}
 }
 

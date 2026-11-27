@@ -5,9 +5,9 @@ go 1.27.3
 require (
 	github.com/alicebob/miniredis/v2 v2.40.0
 	github.com/gowok/fp v0.3.3
-	github.com/gowok/gowok v0.5.1
-	github.com/ngamux/middleware v0.1.6
-	github.com/ngamux/ngamux v1.7.53
+	github.com/gowok/gowok v0.5.4
+	github.com/ngamux/middleware v0.1.7
+	github.com/ngamux/ngamux v1.7.54
 	github.com/redis/go-redis/v9 v9.13.0
 )
 
